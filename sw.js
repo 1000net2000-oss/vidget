@@ -1,8 +1,6 @@
-const CACHE = 'navigator-v1';
-const ASSETS = ['/', '/index.html', '/manifest.json', '/icon-192.svg'];
+const CACHE = 'navigator-v2';
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
   self.skipWaiting();
 });
 
@@ -14,13 +12,24 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // For API calls — network first, no cache
-  if (e.request.url.includes('api.') || e.request.url.includes('nominatim')) {
-    e.respondWith(fetch(e.request).catch(() => new Response('', { status: 503 })));
+  // Всегда сеть для HTML, API и внешних запросов
+  if (
+    e.request.mode === 'navigate' ||
+    e.request.url.includes('api.') ||
+    e.request.url.includes('bank.gov') ||
+    e.request.url.includes('open-meteo') ||
+    e.request.url.includes('nominatim') ||
+    e.request.url.includes('fonts.')
+  ) {
+    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
     return;
   }
-  // For app shell — cache first
+  // Иконки и прочее — кеш
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    caches.match(e.request).then(cached => cached || fetch(e.request).then(r => {
+      const clone = r.clone();
+      caches.open(CACHE).then(c => c.put(e.request, clone));
+      return r;
+    }))
   );
 });
