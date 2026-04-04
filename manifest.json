@@ -1,6 +1,6 @@
 {
   "name": "Навігатор дня",
-  "short_name": " ",
+  "short_name": "⠀",
   "description": "Курси валют, погода, слов'янський календар і польські слова дня",
   "start_url": "/",
   "display": "standalone",
