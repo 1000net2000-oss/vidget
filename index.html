@@ -161,7 +161,6 @@
   <div class="card">
     <div class="lbl">💵 USD → PLN</div>
     <div class="rate-val" id="usdPln">—</div>
-    <div class="rate-unit">1 доллар = ? злотых</div>
     <div class="rate-badge" id="usdBadge">…</div>
     <div class="updated"><div class="dot" id="dotUsd"></div><span id="updUsd">—</span></div>
     <div class="progress"><div class="progress-bar" id="barUsd" style="width:100%"></div></div>
@@ -171,7 +170,6 @@
   <div class="card">
     <div class="lbl">🇵🇱 PLN → UAH</div>
     <div class="rate-val" id="plnUah">—</div>
-    <div class="rate-unit">1 злотый = ? гривен</div>
     <div class="rate-badge" id="uahBadge">…</div>
     <div class="updated"><div class="dot" id="dotUah"></div><span id="updUah">—</span></div>
     <div class="progress"><div class="progress-bar" id="barUah" style="width:100%"></div></div>
@@ -277,8 +275,8 @@ function wDesc(c) {
 async function loadCurrency() {
   // USD → PLN
   try {
-    const f = await (await fetch('https://api.frankfurter.app/latest?from=USD&to=PLN')).json();
-    $('usdPln').textContent = f.rates.PLN.toFixed(4);
+    const f = await (await fetch('https://open.er-api.com/v6/latest/USD')).json();
+    $('usdPln').textContent = f.rates.PLN.toFixed(2);
     $('usdBadge').textContent = 'актуальный курс';
     setDot('dotUsd', true);
   } catch {
@@ -291,7 +289,7 @@ async function loadCurrency() {
   try {
     const nbu = await (await fetch('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=PLN&json')).json();
     const rate = nbu[0]?.rate;
-    $('plnUah').textContent = rate ? rate.toFixed(4) : '—';
+    $('plnUah').textContent = rate ? rate.toFixed(2) : '—';
     $('uahBadge').textContent = rate ? 'актуальный курс' : 'нет данных';
     setDot('dotUah', !!rate);
   } catch {
@@ -308,17 +306,8 @@ async function loadCurrency() {
 // ── weather ───────────────────────────────────
 async function loadWeather() {
   try {
-    const pos = await new Promise((ok, no) =>
-      navigator.geolocation.getCurrentPosition(ok, no, { timeout: 8000 }));
-    const { latitude: lat, longitude: lon } = pos.coords;
-
-    try {
-      const g = await (await fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,
-        { headers: { 'Accept-Language': 'ru' } }
-      )).json();
-      $('wCity').textContent = g.address?.city || g.address?.town || g.address?.village || 'ваш город';
-    } catch { $('wCity').textContent = 'ваш город'; }
+    const lat = 52.2297, lon = 21.0122;
+    $('wCity').textContent = 'Варшава';
 
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`
       + `&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,wind_direction_10m`
@@ -359,7 +348,7 @@ async function loadWeather() {
 
   } catch {
     $('wTemp').innerHTML   = '—';
-    $('wDesc').textContent = 'разрешите геолокацию';
+    $('wDesc').textContent = 'ошибка загрузки';
     $('wCity').textContent = '—';
     setDot('dotWx', false);
   }
