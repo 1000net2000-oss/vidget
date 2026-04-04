@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0d0f14" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Навігатор" />
+  <meta name="apple-mobile-web-app-title" content="Навигатор" />
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icon-192.svg" />
-  <title>Навігатор дня</title>
+  <title>Навигатор дня</title>
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&family=Literata:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -28,10 +28,8 @@
       --mut2:  #9ca3af;
       --bord:  rgba(184,151,90,0.12);
       --bord2: rgba(184,151,90,0.25);
-      --glow:  rgba(184,151,90,0.05);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       font-family: 'Raleway', sans-serif;
       background: var(--bg);
@@ -43,164 +41,101 @@
         radial-gradient(ellipse 70% 50% at 15% 5%,  rgba(184,151,90,0.055) 0%, transparent 55%),
         radial-gradient(ellipse 50% 70% at 85% 95%, rgba(74,140,127,0.055) 0%, transparent 55%);
     }
-
-    /* HEADER */
     header {
       display: flex; align-items: center; gap: 12px;
       padding: 16px 14px 12px;
       border-bottom: 1px solid var(--bord);
     }
     .logo { width: 44px; height: 44px; flex-shrink: 0; }
-    .h-meta { flex: 1; overflow: hidden; }
+    .h-meta { flex: 1; }
     .h-title {
       font-family: 'Literata', serif;
       font-size: 1.38rem; font-weight: 600;
-      color: var(--gold2); letter-spacing: 0.04em; line-height: 1;
+      color: var(--gold2); letter-spacing: 0.02em; line-height: 1;
     }
-    .h-date {
-      font-size: 0.72rem; color: var(--muted);
-      letter-spacing: 0.1em; text-transform: uppercase; margin-top: 3px;
-    }
+    .h-date { font-size: 0.68rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 3px; }
     .refresh-btn {
       background: none; border: 1px solid var(--bord2); color: var(--muted);
       width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      font-size: 0.9rem; transition: all 0.2s; flex-shrink: 0;
+      transition: all 0.2s; flex-shrink: 0;
     }
     .refresh-btn:active { border-color: var(--gold); color: var(--gold); transform: scale(0.9); }
     .refresh-btn.spin svg { animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* GRID */
     .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 9px;
-      padding: 11px 11px 16px;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 9px; padding: 11px 11px 16px;
     }
-
     .card {
-      background: var(--s1);
-      border: 1px solid var(--bord);
-      border-radius: 14px;
-      padding: 13px;
-      position: relative; overflow: hidden;
+      background: var(--s1); border: 1px solid var(--bord);
+      border-radius: 14px; padding: 13px;
       animation: fadeUp 0.45s ease both;
     }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .card:nth-child(1) { animation-delay: 0.05s; }
-    .card:nth-child(2) { animation-delay: 0.10s; }
-    .card:nth-child(3) { animation-delay: 0.15s; grid-column: 1/-1; }
-    .card:nth-child(4) { animation-delay: 0.20s; grid-column: 1/-1; }
-    .card:nth-child(5) { animation-delay: 0.25s; grid-column: 1/-1; }
-
-    .lbl {
-      font-size: 0.68rem; letter-spacing: 0.12em;
-      text-transform: uppercase; color: var(--muted);
-      margin-bottom: 9px; display: flex; align-items: center; gap: 5px;
-    }
-
-    /* CURRENCY */
-    .rate-val {
-      font-family: 'Literata', serif;
-      font-size: 2.15rem; font-weight: 300; line-height: 1;
-      color: var(--gold3);
-    }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    .card:nth-child(1){animation-delay:.05s}
+    .card:nth-child(2){animation-delay:.10s}
+    .card:nth-child(3){animation-delay:.15s;grid-column:1/-1}
+    .card:nth-child(4){animation-delay:.20s;grid-column:1/-1}
+    .card:nth-child(5){animation-delay:.25s;grid-column:1/-1}
+    .lbl { font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 9px; }
+    /* timestamps */
+    .updated { font-size: 0.65rem; color: var(--muted); margin-top: 8px; display: flex; align-items: center; gap: 5px; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); flex-shrink: 0; animation: pulse 2s ease-in-out infinite; }
+    .dot.stale { background: var(--muted); animation: none; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .progress { height: 2px; background: var(--bord); border-radius: 1px; margin-top: 6px; overflow: hidden; }
+    .progress-bar { height: 100%; background: linear-gradient(90deg, var(--teal), var(--gold)); border-radius: 1px; }
+    /* currency */
+    .rate-val { font-family: 'Literata', serif; font-size: 2.15rem; font-weight: 300; line-height: 1; color: var(--gold3); }
     .rate-unit { font-size: 0.70rem; color: var(--muted); margin-top: 4px; }
-    .rate-badge {
-      font-size: 0.69rem; margin-top: 6px; padding: 2px 6px;
-      border-radius: 4px; display: inline-block;
-      background: rgba(107,114,128,0.15); color: var(--mut2);
-    }
-
-    /* WEATHER */
+    .rate-badge { font-size: 0.68rem; margin-top: 6px; padding: 2px 7px; border-radius: 4px; display: inline-block; background: rgba(107,114,128,0.15); color: var(--mut2); }
+    /* weather */
     .w-main { display: flex; align-items: flex-end; gap: 10px; margin-bottom: 8px; }
-    .w-temp {
-      font-family: 'Literata', serif;
-      font-size: 3rem; font-weight: 300; line-height: 1; color: var(--cream);
-    }
+    .w-temp { font-family: 'Literata', serif; font-size: 3rem; font-weight: 300; line-height: 1; color: var(--cream); }
     .w-temp sup { font-size: 1.1rem; color: var(--mut2); vertical-align: super; }
-    .w-right { flex: 1; }
-    .w-desc {
-      font-family: 'Literata', serif;
-      font-size: 1.12rem; font-style: italic; color: var(--gold2); margin-bottom: 4px;
-    }
+    .w-desc { font-family: 'Literata', serif; font-size: 1.12rem; font-style: italic; color: var(--gold2); margin-bottom: 4px; }
     .w-meta { font-size: 0.72rem; color: var(--mut2); line-height: 1.75; }
     .w-wind { display: flex; align-items: center; gap: 4px; margin-top: 2px; font-size: 0.72rem; color: var(--mut2); }
-    .w-alert {
-      background: rgba(192,90,58,0.12); border: 1px solid rgba(192,90,58,0.28);
-      border-radius: 8px; padding: 7px 10px; font-size: 0.72rem;
-      color: #e08060; margin-top: 9px; display: none; line-height: 1.55;
-    }
+    .w-alert { background: rgba(192,90,58,0.12); border: 1px solid rgba(192,90,58,0.28); border-radius: 8px; padding: 7px 10px; font-size: 0.72rem; color: #e08060; margin-top: 9px; display: none; line-height: 1.55; }
     .w-alert.on { display: block; }
-
-    .forecast {
-      display: flex; gap: 7px;
-      margin-top: 11px; border-top: 1px solid var(--bord); padding-top: 9px;
-    }
+    .forecast { display: flex; gap: 7px; margin-top: 11px; border-top: 1px solid var(--bord); padding-top: 9px; }
     .f-day { flex: 1; text-align: center; }
-    .f-day .fn { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .f-day .fn { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
     .f-day .fi { font-size: 1.15rem; margin: 3px 0; }
-    .f-day .ft { font-family: 'Literata', serif; font-size: 1.10rem; color: var(--cream); }
-    .f-day .fw { font-size: 0.65rem; color: var(--muted); margin-top: 1px; }
-
-    /* SLAVIC */
-    .sl-name {
-      font-family: 'Literata', serif;
-      font-size: 1.52rem; font-weight: 600; color: var(--gold2); margin-bottom: 6px;
-    }
+    .f-day .ft { font-family: 'Literata', serif; font-size: 1.05rem; color: var(--cream); }
+    .f-day .fw { font-size: 0.62rem; color: var(--muted); margin-top: 1px; }
+    /* slavic */
+    .sl-name { font-family: 'Literata', serif; font-size: 1.52rem; font-weight: 600; color: var(--gold2); margin-bottom: 6px; }
     .sl-div { height: 1px; background: linear-gradient(90deg, transparent, var(--bord2), transparent); margin: 0 0 9px; }
     .sl-text { font-size: 0.76rem; color: var(--mut2); line-height: 1.72; }
-    .sl-omen {
-      margin-top: 9px; font-size: 0.72rem; font-style: italic;
-      color: var(--teal2); border-left: 2px solid var(--teal); padding-left: 8px; line-height: 1.6;
-    }
-
-    /* WORDS */
+    .sl-omen { margin-top: 9px; font-size: 0.72rem; font-style: italic; color: var(--teal2); border-left: 2px solid var(--teal); padding-left: 8px; line-height: 1.6; }
+    /* words */
     .words { display: flex; flex-direction: column; gap: 7px; }
-    .word-row {
-      background: var(--s2); border: 1px solid var(--bord);
-      border-radius: 8px; padding: 8px 10px;
-    }
+    .word-row { background: var(--s2); border: 1px solid var(--bord); border-radius: 8px; padding: 8px 10px; }
     .word-top { display: flex; align-items: baseline; gap: 7px; }
-    .word-pl {
-      font-family: 'Literata', serif;
-      font-size: 1.18rem; font-weight: 600; color: var(--gold3);
-    }
-    .word-sep { font-size: 0.76rem; color: var(--muted); }
-    .word-ru { font-size: 0.77rem; color: var(--mut2); }
-    .word-ex { font-size: 0.70rem; color: var(--muted); font-style: italic; margin-top: 2px; line-height: 1.5; }
-
-    /* SKELETON */
-    .skel {
-      background: linear-gradient(90deg, var(--s2) 25%, var(--s3) 50%, var(--s2) 75%);
-      background-size: 200% 100%; animation: shim 1.5s infinite;
-      border-radius: 4px;
-    }
+    .word-pl { font-family: 'Literata', serif; font-size: 1.18rem; font-weight: 600; color: var(--gold3); }
+    .word-sep { font-size: 0.72rem; color: var(--muted); }
+    .word-ru { font-size: 0.76rem; color: var(--mut2); }
+    .word-ex { font-size: 0.68rem; color: var(--muted); font-style: italic; margin-top: 2px; line-height: 1.5; }
+    .skel { background: linear-gradient(90deg, var(--s2) 25%, var(--s3) 50%, var(--s2) 75%); background-size: 200% 100%; animation: shim 1.5s infinite; border-radius: 4px; }
     @keyframes shim { to { background-position: -200% 0; } }
   </style>
 </head>
 <body>
-
 <header>
-  <!-- CIRCLE LOGO — sun-wheel / solntse -->
-  <svg class="logo" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg class="logo" viewBox="0 0 44 44" fill="none">
     <circle cx="22" cy="22" r="20.5" stroke="#b8975a" stroke-width="0.9"/>
     <circle cx="22" cy="22" r="15.5" stroke="#b8975a" stroke-width="0.5" opacity="0.35"/>
     <circle cx="22" cy="22" r="10"   stroke="#d4af6e" stroke-width="0.6" opacity="0.6"/>
-    <!-- 8 rays -->
-    <line x1="22" y1="1.5" x2="22" y2="6.5"   stroke="#b8975a" stroke-width="1" stroke-linecap="round"/>
-    <line x1="22" y1="37.5" x2="22" y2="42.5" stroke="#b8975a" stroke-width="1" stroke-linecap="round"/>
-    <line x1="1.5" y1="22" x2="6.5" y2="22"   stroke="#b8975a" stroke-width="1" stroke-linecap="round"/>
-    <line x1="37.5" y1="22" x2="42.5" y2="22" stroke="#b8975a" stroke-width="1" stroke-linecap="round"/>
+    <line x1="22" y1="1.5"  x2="22" y2="6.5"   stroke="#b8975a" stroke-width="1" stroke-linecap="round"/>
+    <line x1="22" y1="37.5" x2="22" y2="42.5"  stroke="#b8975a" stroke-width="1" stroke-linecap="round"/>
+    <line x1="1.5"  y1="22" x2="6.5"  y2="22"  stroke="#b8975a" stroke-width="1" stroke-linecap="round"/>
+    <line x1="37.5" y1="22" x2="42.5" y2="22"  stroke="#b8975a" stroke-width="1" stroke-linecap="round"/>
     <line x1="7.1"  y1="7.1"  x2="10.6" y2="10.6" stroke="#b8975a" stroke-width="0.9" stroke-linecap="round"/>
     <line x1="33.4" y1="33.4" x2="36.9" y2="36.9" stroke="#b8975a" stroke-width="0.9" stroke-linecap="round"/>
     <line x1="36.9" y1="7.1"  x2="33.4" y2="10.6" stroke="#b8975a" stroke-width="0.9" stroke-linecap="round"/>
     <line x1="7.1"  y1="36.9" x2="10.6" y2="33.4" stroke="#b8975a" stroke-width="0.9" stroke-linecap="round"/>
-    <!-- inner petals (kolowrot) -->
     <g stroke="#d4af6e" stroke-width="0.7" opacity="0.75">
       <path d="M22 12 Q25 17 22 22 Q19 17 22 12Z" fill="none"/>
       <path d="M22 32 Q19 27 22 22 Q25 27 22 32Z" fill="none"/>
@@ -209,13 +144,11 @@
     </g>
     <circle cx="22" cy="22" r="2.8" fill="#d4af6e" opacity="0.95"/>
   </svg>
-
   <div class="h-meta">
-    <div class="h-title">Навігатор дня</div>
+    <div class="h-title">Навигатор дня</div>
     <div class="h-date" id="hDate">…</div>
   </div>
-
-  <button class="refresh-btn" id="refreshBtn" onclick="loadAll()">
+  <button class="refresh-btn" id="refreshBtn" onclick="loadAll()" title="Обновить">
     <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5">
       <path d="M13.5 8A5.5 5.5 0 1 1 10 3.07" stroke-linecap="round"/>
       <polyline points="10,1 10,4 13,4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -224,31 +157,34 @@
 </header>
 
 <div class="grid">
-
   <!-- USD → PLN -->
   <div class="card">
     <div class="lbl">💵 USD → PLN</div>
     <div class="rate-val" id="usdPln">—</div>
-    <div class="rate-unit">1 долар = ? злотих</div>
-    <div class="rate-badge" id="usdPlnBadge">…</div>
+    <div class="rate-unit">1 доллар = ? злотых</div>
+    <div class="rate-badge" id="usdBadge">…</div>
+    <div class="updated"><div class="dot" id="dotUsd"></div><span id="updUsd">—</span></div>
+    <div class="progress"><div class="progress-bar" id="barUsd" style="width:100%"></div></div>
   </div>
 
   <!-- PLN → UAH -->
   <div class="card">
     <div class="lbl">🇵🇱 PLN → UAH</div>
     <div class="rate-val" id="plnUah">—</div>
-    <div class="rate-unit">1 злотий = ? гривень</div>
-    <div class="rate-badge" id="plnUahBadge">…</div>
+    <div class="rate-unit">1 злотый = ? гривен</div>
+    <div class="rate-badge" id="uahBadge">…</div>
+    <div class="updated"><div class="dot" id="dotUah"></div><span id="updUah">—</span></div>
+    <div class="progress"><div class="progress-bar" id="barUah" style="width:100%"></div></div>
   </div>
 
   <!-- WEATHER -->
   <div class="card">
-    <div class="lbl">🌤 Погода · <span id="wCity" style="color:var(--mut2)">геолокація…</span></div>
+    <div class="lbl">🌤 Погода · <span id="wCity" style="color:var(--mut2)">определение…</span></div>
     <div class="w-main">
       <div class="w-temp" id="wTemp">—<sup>°</sup></div>
-      <div class="w-right">
-        <div class="w-desc"  id="wDesc">…</div>
-        <div class="w-meta">відчувається <span id="wFeels">—</span>° · <span id="wHum">—</span>%</div>
+      <div>
+        <div class="w-desc" id="wDesc">…</div>
+        <div class="w-meta">ощущается <span id="wFeels">—</span>° · влажн. <span id="wHum">—</span>%</div>
         <div class="w-wind">💨 <span id="wWind">—</span> м/с <span id="wDir" style="color:var(--muted);margin-left:3px"></span></div>
       </div>
     </div>
@@ -258,268 +194,222 @@
       <div class="f-day"><div class="fn">…</div><div class="fi">—</div><div class="ft">—</div></div>
       <div class="f-day"><div class="fn">…</div><div class="fi">—</div><div class="ft">—</div></div>
     </div>
+    <div class="updated"><div class="dot" id="dotWx"></div><span id="updWx">—</span></div>
+    <div class="progress"><div class="progress-bar" id="barWx" style="width:100%"></div></div>
   </div>
 
   <!-- SLAVIC CALENDAR -->
   <div class="card">
-    <div class="lbl">🌿 Слов'янський календар</div>
+    <div class="lbl">🌿 Славянский календарь</div>
     <div class="sl-name" id="slName">…</div>
     <div class="sl-div"></div>
     <div class="sl-text" id="slText">…</div>
     <div class="sl-omen" id="slOmen">…</div>
   </div>
 
-  <!-- POLISH WORDS -->
+  <!-- WORDS -->
   <div class="card">
-    <div class="lbl">🇵🇱 3 слова дня · польська</div>
+    <div class="lbl">🇵🇱 3 слова дня · польский</div>
     <div class="words" id="words">
-      <div class="skel" style="height:42px"></div>
-      <div class="skel" style="height:42px;opacity:.65"></div>
-      <div class="skel" style="height:42px;opacity:.35"></div>
+      <div class="skel" style="height:44px"></div>
+      <div class="skel" style="height:44px;opacity:.65"></div>
+      <div class="skel" style="height:44px;opacity:.35"></div>
     </div>
   </div>
-
 </div>
 
 <script>
-// ── helpers ──────────────────────────────────
 const $ = id => document.getElementById(id);
+const INTERVAL_CUR = 60 * 60 * 1000;  // 1 час
+const INTERVAL_WX  = 30 * 60 * 1000;  // 30 минут
+let lastCur = null, lastWx = null;
 
+// ── header ────────────────────────────────────
 function setHeader() {
   const n = new Date();
-  const days   = ['неділя','понеділок','вівторок','середа','четвер','п\'ятниця','субота'];
-  const months = ['січня','лютого','березня','квітня','травня','червня',
-                  'липня','серпня','вересня','жовтня','листопада','грудня'];
+  const days   = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+  const months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
   $('hDate').textContent = `${days[n.getDay()]}, ${n.getDate()} ${months[n.getMonth()]} ${n.getFullYear()}`;
 }
 
-function windDir(deg) {
-  return ['Пн','Пн-Сх','Сх','Пд-Сх','Пд','Пд-Зх','Зх','Пн-Зх'][Math.round(deg/45)%8];
+// ── timestamps ────────────────────────────────
+function timeAgo(ts) {
+  if (!ts) return '—';
+  const m = Math.floor((Date.now() - ts) / 60000);
+  if (m < 1) return 'только что';
+  if (m < 60) return `${m} мин назад`;
+  return `${Math.floor(m/60)} ч назад`;
 }
+function refreshTimestamps() {
+  $('updUsd').textContent = timeAgo(lastCur);
+  $('updUah').textContent = timeAgo(lastCur);
+  $('updWx').textContent  = timeAgo(lastWx);
+}
+function setDot(id, fresh) {
+  const d = $(id);
+  if (fresh) d.classList.remove('stale');
+  else d.classList.add('stale');
+}
+function animateBar(id, ms) {
+  const b = $(id);
+  b.style.transition = 'none';
+  b.style.width = '100%';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    b.style.transition = `width ${ms/1000}s linear`;
+    b.style.width = '0%';
+  }));
+}
+
+// ── weather helpers ───────────────────────────
+function windDir(d) { return ['С','С-В','В','Ю-В','Ю','Ю-З','З','С-З'][Math.round(d/45)%8]; }
 function wIcon(c) {
   if (c===0) return '☀️'; if (c<=2) return '🌤️'; if (c===3) return '☁️';
   if (c<=48) return '🌫️'; if (c<=55) return '🌦️'; if (c<=67) return '🌧️';
-  if (c<=77) return '❄️'; if (c<=82) return '🌧️'; if (c<=86) return '🌨️';
-  return '⛈️';
+  if (c<=77) return '❄️'; if (c<=82) return '🌧️'; return '⛈️';
 }
 function wDesc(c) {
-  if (c===0) return 'ясно'; if (c<=2) return 'мінлива хмарність'; if (c===3) return 'похмуро';
-  if (c<=48) return 'туман'; if (c<=55) return 'мряка'; if (c<=67) return 'дощ';
-  if (c<=77) return 'сніг'; if (c<=82) return 'злива'; return 'гроза';
+  if (c===0) return 'ясно'; if (c<=2) return 'переменная облачность'; if (c===3) return 'пасмурно';
+  if (c<=48) return 'туман'; if (c<=55) return 'морось'; if (c<=67) return 'дождь';
+  if (c<=77) return 'снег'; if (c<=82) return 'ливень'; return 'гроза';
 }
 
-// ── currency ─────────────────────────────────
+// ── currency ──────────────────────────────────
 async function loadCurrency() {
+  // USD → PLN
   try {
-    // USD→PLN via Frankfurter
     const f = await (await fetch('https://api.frankfurter.app/latest?from=USD&to=PLN')).json();
-    const usdPln = f.rates.PLN;
-    $('usdPln').textContent = usdPln.toFixed(4);
-    $('usdPlnBadge').textContent = 'актуальный курс';
-    markFresh('dotCur');
-    startBar('barCur', INTERVAL_CURRENCY);
+    $('usdPln').textContent = f.rates.PLN.toFixed(4);
+    $('usdBadge').textContent = 'актуальный курс';
+    setDot('dotUsd', true);
   } catch {
     $('usdPln').textContent = '—';
-    $('usdPlnBadge').textContent = 'ошибка сети';
-    markStale('dotCur');
+    $('usdBadge').textContent = 'ошибка сети';
+    setDot('dotUsd', false);
   }
 
+  // PLN → UAH via НБУ
   try {
-    // PLN→UAH via НБУ (Нацбанк Украины) — free, no key needed
     const nbu = await (await fetch('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=PLN&json')).json();
-    const plnUah = nbu[0]?.rate;
-    $('plnUah').textContent = plnUah ? plnUah.toFixed(4) : '—';
-    $('plnUahBadge').textContent = plnUah ? 'актуальный курс' : 'нет данных';
-    markFresh('dotCur2');
-    startBar('barCur2', INTERVAL_CURRENCY);
+    const rate = nbu[0]?.rate;
+    $('plnUah').textContent = rate ? rate.toFixed(4) : '—';
+    $('uahBadge').textContent = rate ? 'актуальный курс' : 'нет данных';
+    setDot('dotUah', !!rate);
   } catch {
     $('plnUah').textContent = '—';
-    $('plnUahBadge').textContent = 'ошибка сети';
-    markStale('dotCur2');
+    $('uahBadge').textContent = 'ошибка сети';
+    setDot('dotUah', false);
   }
 
-  lastCurrency = Date.now();
+  lastCur = Date.now();
+  animateBar('barUsd', INTERVAL_CUR);
+  animateBar('barUah', INTERVAL_CUR);
 }
 
-// ── weather ──────────────────────────────────
+// ── weather ───────────────────────────────────
 async function loadWeather() {
   try {
     const pos = await new Promise((ok, no) =>
-      navigator.geolocation.getCurrentPosition(ok, no, { timeout: 7000 }));
+      navigator.geolocation.getCurrentPosition(ok, no, { timeout: 8000 }));
     const { latitude: lat, longitude: lon } = pos.coords;
 
-    // city name
     try {
-      const gd = await (await fetch(
+      const g = await (await fetch(
         `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,
-        { headers: { 'Accept-Language': 'uk' } }
+        { headers: { 'Accept-Language': 'ru' } }
       )).json();
-      $('wCity').textContent = gd.address?.city || gd.address?.town || gd.address?.village || 'ваше місто';
-    } catch { $('wCity').textContent = 'ваше місто'; }
+      $('wCity').textContent = g.address?.city || g.address?.town || g.address?.village || 'ваш город';
+    } catch { $('wCity').textContent = 'ваш город'; }
 
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`
       + `&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,wind_direction_10m`
       + `&daily=weather_code,temperature_2m_max,temperature_2m_min,wind_speed_10m_max`
       + `&wind_speed_unit=ms&timezone=auto&forecast_days=4`;
-
     const wd = await (await fetch(url)).json();
     const c = wd.current;
 
-    $('wTemp').innerHTML  = `${Math.round(c.temperature_2m)}<sup>°</sup>`;
-    $('wDesc').textContent  = wDesc(c.weather_code);
+    $('wTemp').innerHTML   = `${Math.round(c.temperature_2m)}<sup>°</sup>`;
+    $('wDesc').textContent = wDesc(c.weather_code);
     $('wFeels').textContent = Math.round(c.apparent_temperature);
     $('wHum').textContent   = c.relative_humidity_2m;
     $('wWind').textContent  = c.wind_speed_10m.toFixed(1);
     $('wDir').textContent   = windDir(c.wind_direction_10m);
 
-    // alert if temp changes > 8°
     const diff = wd.daily.temperature_2m_max[1] - wd.daily.temperature_2m_max[0];
+    const al = $('wAlert');
+    al.classList.remove('on');
     if (Math.abs(diff) >= 8) {
-      $('wAlert').textContent = diff > 0
-        ? `⚠️ Завтра різко тепліше: +${diff.toFixed(0)}°`
-        : `⚠️ Завтра різке похолодання: ${diff.toFixed(0)}°`;
-      $('wAlert').classList.add('on');
+      al.textContent = diff > 0 ? `⚠️ Завтра резко теплее: +${diff.toFixed(0)}°` : `⚠️ Завтра резкое похолодание: ${diff.toFixed(0)}°`;
+      al.classList.add('on');
     }
 
-    // forecast days 1-3
-    const dayNames = ['Нд','Пн','Вт','Ср','Чт','Пт','Сб'];
+    const dn = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
     $('forecast').innerHTML = [1,2,3].map(i => {
       const dt = new Date(wd.daily.time[i]);
       return `<div class="f-day">
-        <div class="fn">${dayNames[dt.getDay()]}</div>
+        <div class="fn">${dn[dt.getDay()]}</div>
         <div class="fi">${wIcon(wd.daily.weather_code[i])}</div>
         <div class="ft">${Math.round(wd.daily.temperature_2m_max[i])}° / <span style="color:var(--muted)">${Math.round(wd.daily.temperature_2m_min[i])}°</span></div>
         <div class="fw">💨 ${wd.daily.wind_speed_10m_max[i].toFixed(0)} м/с</div>
       </div>`;
     }).join('');
 
-  } catch(e) {
+    lastWx = Date.now();
+    setDot('dotWx', true);
+    animateBar('barWx', INTERVAL_WX);
+
+  } catch {
     $('wTemp').innerHTML   = '—';
-    $('wDesc').textContent  = 'дозвольте геолокацію';
-    $('wCity').textContent  = '—';
+    $('wDesc').textContent = 'разрешите геолокацию';
+    $('wCity').textContent = '—';
+    setDot('dotWx', false);
   }
 }
 
 // ── slavic calendar ───────────────────────────
 const SLAV = [
-  {m:1,d:1,  n:'Щедрий вечір / Новий рік',
-   t:'День оновлення. Прийнято обходити будинки з колядками та щедрівками, бажати добра сусідам. Перший гість у домі визначає настрій року.',
-   o:'Вітер з півдня — рік теплий і врожайний.'},
-  {m:1,d:6,  n:'Велесів день (Водохреще)',
-   t:'Освячення води. Прийнято купатися в ополонці та прибирати оселю. Вода набуває цілющої сили.',
-   o:'Зорі яскраві — горіхів буде вдосталь.'},
-  {m:1,d:13, n:'Старий Новий рік / Щедра кутя',
-   t:'Щедрування по хатах. Господарям несуть добробут, натомість отримують частування. Вечір пісень і радості.',
-   o:'Туман — врожай буде добрим.'},
-  {m:1,d:19, n:'День Перуна-Зимового',
-   t:'День захисту від стихій. Прийнято освячувати інструменти та зброю, просити захисту для дому.',
-   o:'Мороз тріщить — літо буде спекотним.'},
-  {m:1,d:24, n:'День Велеса',
-   t:'Велес — бог худоби та достатку. Прийнято добре годувати тварин, дякувати за їжу та тепло.',
-   o:'Снігові замети — до великого хліба.'},
-  {m:2,d:2,  n:'Громниця',
-   t:'Свято вогню й перших ознак весни. Запалюють свічки, обходять дім із вогнем для захисту.',
-   o:'Якщо сонце виглянуло — весна скоро.'},
-  {m:2,d:11, n:'День Велеса-Зимового',
-   t:'Останній зимовий Велесів день. Прийнято пекти хліб та ділитися з сусідами — символ достатку.',
-   o:'Метелиця — ще сім тижнів зими.'},
-  {m:2,d:28, n:'Проводи зими',
-   t:'Прийнято прощатися з холодами, спалювати опудало зими та готуватися до весни.',
-   o:'Відлига в кінці лютого — рання весна.'},
-  {m:3,d:1,  n:'Навій день / Поминання предків',
-   t:'День пам\'яті. Прийнято прибирати могили, лишати частування духам предків, запалювати свічки.',
-   o:'Тепло на початку березня — раннє літо.'},
-  {m:3,d:14, n:'День Ярила (перші промені)',
-   t:'Ярило — бог молодого сонця. Прийнято виходити назустріч сонцю, висаджувати перші насіння.',
-   o:'Журавлі летять на північ — весна тепла.'},
-  {m:3,d:20, n:'Весняне Рівнодення — Масниця',
-   t:'День і ніч рівні. Прийнято пекти млинці, палити вогнища, водити хороводи. Весна перемагає зиму.',
-   o:'Ясне рівнодення — рік щасливий.'},
-  {m:3,d:25, n:'День Лади',
-   t:'Лада — богиня краси та кохання. Прийнято плести вінки, дарувати квіти, починати нові стосунки.',
-   o:'Перші квіти зацвіли — до теплого квітня.'},
-  {m:4,d:1,  n:'День Лялі',
-   t:'Ляля — богиня весни та молодості. Прийнято водити хороводи, оновлювати оселю після зими.',
-   o:'Дощ першого квітня — квітень теплий.'},
-  {m:4,d:7,  n:'Благовіщення',
-   t:'Прийнято відпускати птахів на волю, не братися за важку роботу. День добрих новин.',
-   o:'Ластівки прилетіли — заморозків більше не буде.'},
-  {m:4,d:22, n:'День Землі',
-   t:'Прийнято торкатися голими руками землі, дякувати за майбутній врожай. Не можна ображати природу.',
-   o:'Земля суха — врожай буде добрим.'},
-  {m:4,d:30, n:'Родоніця — весняне поминання',
-   t:'Поминальний день. Відвідують могили предків, несуть весняні квіти, розповідають дітям про рід.',
-   o:'Тепла ніч — літо без посухи.'},
-  {m:5,d:1,  n:'Живин день',
-   t:'Жива — богиня живої природи. Прийнято вперше купатися в річці, збирати перші трави.',
-   o:'Перший травень теплий — рік урожайний.'},
-  {m:5,d:6,  n:'День Дажбога',
-   t:'Дажбог — бог сонця. Прийнято дякувати сонцю, виносити їжу на відкрите місце.',
-   o:'Роса велика — до доброго льону.'},
-  {m:5,d:22, n:'Ярилин день',
-   t:'Ярило у повній силі. День кохання та сватання. Плетуть вінки та кидають у воду.',
-   o:'Вінок не потонув — рік щасливий.'},
-  {m:6,d:21, n:'Літнє Сонцестояння — Купала',
-   t:'Найбільше свято! Вогнища, стрибки через вогонь, пошук папороті, ворожіння, купання. Ніч чудес.',
-   o:'Зорі яскраві на Купала — рік щасливий і багатий.'},
-  {m:6,d:23, n:'День Перуна — Гроза',
-   t:'Перун — повелитель грому. Не ховаються від дощу — він очищає. Не можна сваритися.',
-   o:'Гроза на свято — врожай рясний.'},
-  {m:7,d:12, n:'День Перуна',
-   t:'Прийнято не працювати в полі — може вдарити гроза. Освячують знаряддя праці. День сили.',
-   o:'Грім у цей день — жито добре.'},
-  {m:7,d:28, n:'День Сварога',
-   t:'Сварог — небесний коваль. Прийнято ремонтувати інструменти та готуватися до жнив.',
-   o:'Тепла ніч — жнива добрі.'},
-  {m:8,d:1,  n:'Перший Спас — Медовий',
-   t:'День збору меду. Бджолярі освячують мед. Прийнято куштувати перший мед із хлібом.',
-   o:'Бджоли активні — зима м\'яка.'},
-  {m:8,d:19, n:'Яблучний Спас',
-   t:'Несуть яблука на освячення. До цього дня яблука не їдять. Пригощають дітей та сиріт.',
-   o:'Сухий день — осінь тепла.'},
-  {m:8,d:29, n:'Горіховий Спас',
-   t:'Збір горіхів. Прийнято сушити горіхи та зерно на зиму. Завершення збору врожаю.',
-   o:'Горіхів багато — зима сувора.'},
-  {m:9,d:14, n:'Семин день — Бабине літо',
-   t:'Початок Бабиного літа. Збирають останні трави, сушать коріння. Жінки починають прясти.',
-   o:'Павутиння літає — Бабине літо довге.'},
-  {m:9,d:21, n:'Осіннє Рівнодення',
-   t:'День рівний ночі. Дякують землі за врожай, зберігають насіння. Осінь вступає у права.',
-   o:'Ясне рівнодення — осінь суха.'},
-  {m:10,d:1, n:'День Покрови',
-   t:'Земля "вкривається" на зиму. Завершують польові роботи, утеплюють дім. Перший сніг — добрий знак.',
-   o:'Журавлі відлетіли до Покрови — зима рання.'},
-  {m:10,d:14,n:'Покрова — Дажбожий день',
-   t:'День захисту та опіки. Допомагають самотнім людям. Дівчата ворожать на судженого.',
-   o:'Сніг на Покрову — зима сніжна.'},
-  {m:10,d:31,n:'День Марени',
-   t:'Марена — богиня зими. Поминальний день. Запалюють свічки за предків, не гуляють вночі.',
-   o:'Вітер завиває — зима рання та сувора.'},
-  {m:11,d:8, n:'День Сварога-Осіннього',
-   t:'Сварог закриває небо на зиму. Перевіряють запаси, ремонтують дах, утеплюють хлів.',
-   o:'Гуси летять низько — зима холодна.'},
-  {m:11,d:24,n:'День Морени',
-   t:'Морена — зима вступає. Надягають зимовий одяг, варять перший зимовий чай із шипшини.',
-   o:'Зірки яскраві — мороз вдарить незабаром.'},
-  {m:12,d:21,n:'Зимове Сонцестояння — Коляда',
-   t:'Найдовша ніч, народження нового сонця. Колядки, вогнище всю ніч, гуляння до світанку.',
-   o:'Зірок багато на Коляду — рік врожайний.'},
-  {m:12,d:25,n:'День Коляди — Різдво сонця',
-   t:'Сонце народилося! Колядують, носять зірку, варять кутю та узвар. 12 страв — 12 місяців.',
-   o:'Сніг іде — рік щасливий.'},
-  {m:12,d:31,n:'Щедрий вечір / Проводи року',
-   t:'Проводи старого року. Прибирають оселю, прощають образи, вмиваються чистою водою.',
-   o:'Ясне небо — рік прийде добрий.'},
+  {m:1,d:1,  n:'Щедрый вечер / Новый год', t:'День обновления. Принято обходить дома с колядками, желать добра соседям. Первый гость в доме определяет настрой всего года.', o:'Ветер с юга — год тёплый и урожайный.'},
+  {m:1,d:6,  n:'Велесов день (Водокрещение)', t:'Освящение воды. Принято купаться в проруби и убирать дом. Вода набирает целебную силу на весь год.', o:'Яркие звёзды — орехов будет вдоволь.'},
+  {m:1,d:13, n:'Старый Новый год / Щедрая кутья', t:'Щедрование по домам. Хозяевам несут достаток, взамен получают угощение. Вечер песен и радости.', o:'Туман — урожай будет добрым.'},
+  {m:1,d:19, n:'День Перуна-Зимнего', t:'День защиты от стихий. Принято освящать инструменты и оружие, просить защиты для дома.', o:'Трескучий мороз — лето будет жарким.'},
+  {m:1,d:24, n:'День Велеса', t:'Велес — бог скота и достатка. Принято хорошо кормить животных, благодарить за еду и тепло.', o:'Снежные заносы — к большому хлебу.'},
+  {m:2,d:2,  n:'Громница', t:'Праздник огня и первых признаков весны. Зажигают свечи, обходят дом с огнём для защиты.', o:'Если выглянуло солнце — весна скоро.'},
+  {m:2,d:11, n:'День Велеса-Зимнего', t:'Последний зимний Велесов день. Принято печь хлеб и делиться с соседями — символ достатка.', o:'Метель — ещё семь недель зимы.'},
+  {m:2,d:28, n:'Проводы зимы', t:'Принято прощаться с холодами, сжигать чучело зимы и готовиться к весне.', o:'Оттепель в конце февраля — ранняя весна.'},
+  {m:3,d:1,  n:'Навий день / Поминовение предков', t:'День памяти. Принято убирать могилы, оставлять угощение духам предков, зажигать свечи.', o:'Тепло в начале марта — раннее лето.'},
+  {m:3,d:14, n:'День Ярилы (первые лучи)', t:'Ярило — бог молодого солнца. Принято выходить навстречу солнцу, сеять первые семена.', o:'Журавли летят на север — весна тёплая.'},
+  {m:3,d:20, n:'Весеннее Равноденствие — Масленица', t:'День и ночь равны. Принято печь блины, жечь костры, водить хороводы. Весна побеждает зиму.', o:'Ясное равноденствие — год счастливый.'},
+  {m:3,d:25, n:'День Лады', t:'Лада — богиня красоты и любви. Принято плести венки, дарить цветы любимым.', o:'Первые цветы расцвели — к тёплому апрелю.'},
+  {m:4,d:1,  n:'День Лели', t:'Леля — богиня весны и молодости. Принято водить хороводы, обновлять дом после зимы.', o:'Дождь первого апреля — апрель тёплый.'},
+  {m:4,d:7,  n:'Благовещение', t:'Принято отпускать птиц на волю, не браться за тяжёлую работу. День добрых вестей.', o:'Прилетели ласточки — заморозков больше не будет.'},
+  {m:4,d:22, n:'День Земли', t:'Принято касаться голыми руками земли, благодарить за будущий урожай. Нельзя обижать природу.', o:'Сухая земля — урожай будет добрым.'},
+  {m:4,d:30, n:'Радуница — весеннее поминовение', t:'Поминальный день. Посещают могилы предков, несут весенние цветы, рассказывают детям о роде.', o:'Тёплая ночь — лето без засухи.'},
+  {m:5,d:1,  n:'Живин день', t:'Жива — богиня живой природы. Принято впервые купаться в реке, собирать первые травы.', o:'Тёплый первый май — год урожайный.'},
+  {m:5,d:6,  n:'День Дажьбога', t:'Дажьбог — бог солнца. Принято благодарить солнце, выносить еду на открытое место.', o:'Большая роса — к доброму льну.'},
+  {m:5,d:22, n:'Ярилин день', t:'Ярило в полной силе. День любви и сватовства. Плетут венки и бросают в воду.', o:'Венок не потонул — год счастливый.'},
+  {m:6,d:21, n:'Летнее Солнцестояние — Купала', t:'Величайший праздник! Костры, прыжки через огонь, поиск папоротника, гадания, купание. Ночь чудес.', o:'Яркие звёзды на Купалу — год счастливый и богатый.'},
+  {m:6,d:23, n:'День Перуна — Гроза', t:'Перун — повелитель грома. Не прячутся от дождя — он очищает. Нельзя ссориться.', o:'Гроза на праздник — урожай обильный.'},
+  {m:7,d:12, n:'День Перуна', t:'Принято не работать в поле — может ударить гроза. Освящают орудия труда. День силы.', o:'Гром в этот день — рожь уродится.'},
+  {m:7,d:28, n:'День Сварога', t:'Сварог — небесный кузнец. Принято чинить инструменты и готовиться к жатве.', o:'Тёплая ночь — жатва добрая.'},
+  {m:8,d:1,  n:'Первый Спас — Медовый', t:'День сбора мёда. Пасечники освящают мёд. Принято пробовать первый мёд с хлебом.', o:'Активные пчёлы — зима мягкая.'},
+  {m:8,d:19, n:'Яблочный Спас', t:'Несут яблоки на освящение. До этого дня яблоки не едят. Угощают детей и сирот.', o:'Сухой день — осень тёплая.'},
+  {m:8,d:29, n:'Ореховый Спас', t:'Сбор орехов. Принято сушить орехи и зерно на зиму. Завершение уборки урожая.', o:'Орехов много — зима суровая.'},
+  {m:9,d:14, n:'Семин день — Бабье лето', t:'Начало Бабьего лета. Собирают последние травы, сушат коренья. Женщины начинают прясть.', o:'Паутина летает — Бабье лето долгое.'},
+  {m:9,d:21, n:'Осеннее Равноденствие', t:'День равен ночи. Благодарят землю за урожай, сохраняют семена. Осень вступает в права.', o:'Ясное равноденствие — осень сухая.'},
+  {m:10,d:1, n:'День Покрова', t:'Земля "укрывается" на зиму. Заканчивают полевые работы, утепляют дом. Первый снег — добрый знак.', o:'Журавли улетели до Покрова — зима ранняя.'},
+  {m:10,d:14,n:'Покров — День Дажьбога', t:'День защиты и покровительства. Помогают одиноким людям. Девушки гадают на суженого.', o:'Снег на Покров — зима снежная.'},
+  {m:10,d:31,n:'День Марены', t:'Марена — богиня зимы. Поминальный день. Зажигают свечи за предков, не гуляют ночью.', o:'Воет ветер — зима ранняя и суровая.'},
+  {m:11,d:8, n:'День Сварога-Осеннего', t:'Сварог закрывает небо на зиму. Проверяют запасы, чинят крышу, утепляют хлев.', o:'Гуси летят низко — зима холодная.'},
+  {m:11,d:24,n:'День Морены', t:'Морена — зима вступает. Надевают зимнюю одежду, варят первый зимний чай из шиповника.', o:'Яркие звёзды — мороз ударит скоро.'},
+  {m:12,d:21,n:'Зимнее Солнцестояние — Коляда', t:'Самая долгая ночь, рождение нового солнца. Колядки, костёр всю ночь, гуляния до рассвета.', o:'Много звёзд на Коляду — год урожайный.'},
+  {m:12,d:25,n:'День Коляды — Рождество солнца', t:'Солнце родилось! Колядуют, носят звезду, варят кутью и взвар. 12 блюд — 12 месяцев.', o:'Снег идёт — год счастливый.'},
+  {m:12,d:31,n:'Щедрый вечер / Проводы года', t:'Проводы старого года. Убирают дом, прощают обиды, умываются чистой водой.', o:'Ясное небо — год придёт добрый.'},
 ];
-
 function loadSlavic() {
-  const n = new Date();
-  const m = n.getMonth()+1, d = n.getDate();
-  const score = e => e.m*100+e.d;
-  const today = m*100+d;
+  const n = new Date(), m = n.getMonth()+1, d = n.getDate();
   let e = SLAV.find(x => x.m===m && x.d===d);
   if (!e) {
-    const past = SLAV.filter(x => score(x) <= today);
+    const today = m*100+d;
+    const past = SLAV.filter(x => x.m*100+x.d <= today);
     e = past.length ? past[past.length-1] : SLAV[SLAV.length-1];
   }
   $('slName').textContent = e.n;
@@ -529,53 +419,55 @@ function loadSlavic() {
 
 // ── polish words ──────────────────────────────
 const WORDS = [
-  {pl:'deszcz',    ru:'дощ',        ex:'Dziś jest deszcz. — Сьогодні дощ.'},
-  {pl:'chmury',    ru:'хмари',      ex:'Na niebie są chmury. — На небі хмари.'},
-  {pl:'zdrowie',   ru:'здоров\'я',  ex:'Zdrowie jest ważne. — Здоров\'я важливе.'},
-  {pl:'rodzina',   ru:'родина',     ex:'Kocham moją rodzinę. — Я люблю свою родину.'},
-  {pl:'praca',     ru:'робота',     ex:'Idę do pracy. — Йду на роботу.'},
-  {pl:'sklep',     ru:'магазин',    ex:'Idę do sklepu. — Йду до магазину.'},
-  {pl:'ulica',     ru:'вулиця',     ex:'Na ulicy jest cicho. — На вулиці тихо.'},
-  {pl:'pociąg',    ru:'потяг',      ex:'Pociąg odjeżdża. — Потяг відходить.'},
-  {pl:'herbata',   ru:'чай',        ex:'Czy chcesz herbaty? — Хочеш чаю?'},
-  {pl:'chleb',     ru:'хліб',       ex:'Świeży chleb. — Свіжий хліб.'},
-  {pl:'okno',      ru:'вікно',      ex:'Otwórz okno. — Відчини вікно.'},
-  {pl:'klucz',     ru:'ключ',       ex:'Mam klucz. — У мене є ключ.'},
-  {pl:'pogoda',    ru:'погода',     ex:'Jaka jest pogoda? — Яка погода?'},
-  {pl:'rano',      ru:'ранок',      ex:'Rano piję kawę. — Вранці п\'ю каву.'},
-  {pl:'wieczór',   ru:'вечір',      ex:'Dobry wieczór! — Добрий вечір!'},
-  {pl:'pies',      ru:'собака',     ex:'To jest mój pies. — Це мій собака.'},
-  {pl:'las',       ru:'ліс',        ex:'W lesie jest cicho. — У лісі тихо.'},
-  {pl:'rzeka',     ru:'річка',      ex:'Rzeka jest zimna. — Річка холодна.'},
-  {pl:'słońce',    ru:'сонце',      ex:'Dziś świeci słońce. — Сьогодні сонце.'},
-  {pl:'wiosna',    ru:'весна',      ex:'Wiosna już jest! — Весна вже прийшла!'},
-  {pl:'lato',      ru:'літо',       ex:'Uwielbiam lato. — Я обожнюю літо.'},
-  {pl:'jesień',    ru:'осінь',      ex:'Jesień jest piękna. — Осінь гарна.'},
-  {pl:'zima',      ru:'зима',       ex:'Zima jest mroźna. — Зима морозна.'},
-  {pl:'pieniądze', ru:'гроші',      ex:'Mam mało pieniędzy. — Мало грошей.'},
-  {pl:'czas',      ru:'час',        ex:'Mam czas. — У мене є час.'},
-  {pl:'miasto',    ru:'місто',      ex:'Lubię to miasto. — Мені подобається місто.'},
-  {pl:'droga',     ru:'дорога',     ex:'Droga jest długa. — Дорога довга.'},
-  {pl:'kwiat',     ru:'квітка',     ex:'To piękny kwiat. — Це гарна квітка.'},
-  {pl:'dziecko',   ru:'дитина',     ex:'Moje dziecko śpi. — Моя дитина спить.'},
-  {pl:'szkoła',    ru:'школа',      ex:'Idę do szkoły. — Йду до школи.'},
-  {pl:'lekarz',    ru:'лікар',      ex:'Idę do lekarza. — Йду до лікаря.'},
-  {pl:'apteka',    ru:'аптека',     ex:'Gdzie jest apteka? — Де аптека?'},
-  {pl:'samochód',  ru:'машина',     ex:'Mój samochód jest niebieski.'},
-  {pl:'rower',     ru:'велосипед',  ex:'Lubię jazdę na rowerze.'},
-  {pl:'mieszkanie',ru:'квартира',   ex:'Mam nowe mieszkanie.'},
-  {pl:'sąsiad',    ru:'сусід',      ex:'Mój sąsiad jest miły. — Мій сусід приємний.'},
-  {pl:'przyjaciel',ru:'друг',       ex:'Mam dobrego przyjaciela.'},
-  {pl:'spotkanie', ru:'зустріч',    ex:'Mam ważne spotkanie.'},
-  {pl:'telefon',   ru:'телефон',    ex:'Gdzie jest mój telefon?'},
-  {pl:'kuchnia',   ru:'кухня',      ex:'Gotuję w kuchni. — Готую на кухні.'},
-  {pl:'rzeka',     ru:'річка',      ex:'Rzeka jest piękna. — Річка гарна.'},
-  {pl:'ptak',      ru:'птах',       ex:'Ptak śpiewa. — Птах співає.'},
-  {pl:'drzewo',    ru:'дерево',     ex:'To wysokie drzewo. — Це високе дерево.'},
-  {pl:'niebo',     ru:'небо',       ex:'Niebo jest niebieskie. — Небо блакитне.'},
-  {pl:'morze',     ru:'море',       ex:'Morze jest zimne. — Море холодне.'},
+  {pl:'deszcz',    ru:'дождь',     ex:'Dziś jest deszcz. — Сегодня дождь.'},
+  {pl:'chmury',    ru:'облака',    ex:'Na niebie są chmury. — На небе облака.'},
+  {pl:'zdrowie',   ru:'здоровье',  ex:'Zdrowie jest ważne. — Здоровье важно.'},
+  {pl:'rodzina',   ru:'семья',     ex:'Kocham moją rodzinę. — Я люблю свою семью.'},
+  {pl:'praca',     ru:'работа',    ex:'Idę do pracy. — Иду на работу.'},
+  {pl:'sklep',     ru:'магазин',   ex:'Idę do sklepu. — Иду в магазин.'},
+  {pl:'ulica',     ru:'улица',     ex:'Na ulicy jest cicho. — На улице тихо.'},
+  {pl:'pociąg',    ru:'поезд',     ex:'Pociąg odjeżdża. — Поезд отправляется.'},
+  {pl:'herbata',   ru:'чай',       ex:'Czy chcesz herbaty? — Хочешь чаю?'},
+  {pl:'chleb',     ru:'хлеб',      ex:'Świeży chleb. — Свежий хлеб.'},
+  {pl:'okno',      ru:'окно',      ex:'Otwórz okno. — Открой окно.'},
+  {pl:'klucz',     ru:'ключ',      ex:'Mam klucz. — У меня есть ключ.'},
+  {pl:'pogoda',    ru:'погода',    ex:'Jaka jest pogoda? — Какая погода?'},
+  {pl:'rano',      ru:'утро',      ex:'Rano piję kawę. — Утром пью кофе.'},
+  {pl:'wieczór',   ru:'вечер',     ex:'Dobry wieczór! — Добрый вечер!'},
+  {pl:'pies',      ru:'собака',    ex:'To jest mój pies. — Это моя собака.'},
+  {pl:'las',       ru:'лес',       ex:'W lesie jest cicho. — В лесу тихо.'},
+  {pl:'rzeka',     ru:'река',      ex:'Rzeka jest zimna. — Река холодная.'},
+  {pl:'słońce',    ru:'солнце',    ex:'Dziś świeci słońce. — Сегодня светит солнце.'},
+  {pl:'wiosna',    ru:'весна',     ex:'Wiosna już jest! — Весна уже пришла!'},
+  {pl:'lato',      ru:'лето',      ex:'Uwielbiam lato. — Я обожаю лето.'},
+  {pl:'jesień',    ru:'осень',     ex:'Jesień jest piękna. — Осень красивая.'},
+  {pl:'zima',      ru:'зима',      ex:'Zima jest mroźna. — Зима морозная.'},
+  {pl:'pieniądze', ru:'деньги',    ex:'Mam mało pieniędzy. — У меня мало денег.'},
+  {pl:'czas',      ru:'время',     ex:'Mam czas. — У меня есть время.'},
+  {pl:'miasto',    ru:'город',     ex:'Lubię to miasto. — Мне нравится этот город.'},
+  {pl:'droga',     ru:'дорога',    ex:'Droga jest długa. — Дорога длинная.'},
+  {pl:'kwiat',     ru:'цветок',    ex:'To piękny kwiat. — Это красивый цветок.'},
+  {pl:'dziecko',   ru:'ребёнок',   ex:'Moje dziecko śpi. — Мой ребёнок спит.'},
+  {pl:'szkoła',    ru:'школа',     ex:'Idę do szkoły. — Иду в школу.'},
+  {pl:'lekarz',    ru:'врач',      ex:'Idę do lekarza. — Иду к врачу.'},
+  {pl:'apteka',    ru:'аптека',    ex:'Gdzie jest apteka? — Где аптека?'},
+  {pl:'samochód',  ru:'машина',    ex:'Mój samochód jest niebieski. — Моя машина синяя.'},
+  {pl:'rower',     ru:'велосипед', ex:'Lubię jazdę na rowerze. — Люблю ездить на велосипеде.'},
+  {pl:'mieszkanie',ru:'квартира',  ex:'Mam nowe mieszkanie. — У меня новая квартира.'},
+  {pl:'sąsiad',    ru:'сосед',     ex:'Mój sąsiad jest miły. — Мой сосед приятный.'},
+  {pl:'przyjaciel',ru:'друг',      ex:'Mam dobrego przyjaciela. — У меня хороший друг.'},
+  {pl:'spotkanie', ru:'встреча',   ex:'Mam ważne spotkanie. — У меня важная встреча.'},
+  {pl:'telefon',   ru:'телефон',   ex:'Gdzie jest mój telefon? — Где мой телефон?'},
+  {pl:'kuchnia',   ru:'кухня',     ex:'Gotuję w kuchni. — Готовлю на кухне.'},
+  {pl:'ptak',      ru:'птица',     ex:'Ptak śpiewa. — Птица поёт.'},
+  {pl:'drzewo',    ru:'дерево',    ex:'To wysokie drzewo. — Это высокое дерево.'},
+  {pl:'niebo',     ru:'небо',      ex:'Niebo jest niebieskie. — Небо голубое.'},
+  {pl:'morze',     ru:'море',      ex:'Morze jest zimne. — Море холодное.'},
+  {pl:'cukier',    ru:'сахар',     ex:'Czy masz cukier? — У тебя есть сахар?'},
+  {pl:'mleko',     ru:'молоко',    ex:'Chcę mleko. — Я хочу молока.'},
+  {pl:'woda',      ru:'вода',      ex:'Daj mi wody. — Дай мне воды.'},
+  {pl:'kawa',      ru:'кофе',      ex:'Lubię kawę. — Я люблю кофе.'},
 ];
-
 function loadWords() {
   const n = new Date();
   const seed = n.getFullYear()*10000 + (n.getMonth()+1)*100 + n.getDate();
@@ -583,9 +475,7 @@ function loadWords() {
   const i0 = seed % L;
   const i1 = (seed*7+13) % L;
   const i2 = (seed*13+29) % L;
-  const w = [WORDS[i0],
-             WORDS[i1!==i0 ? i1 : (i1+1)%L],
-             WORDS[i2!==i0&&i2!==i1 ? i2 : (i2+3)%L]];
+  const w = [WORDS[i0], WORDS[i1!==i0?i1:(i1+1)%L], WORDS[i2!==i0&&i2!==i1?i2:(i2+3)%L]];
   $('words').innerHTML = w.map(x => `
     <div class="word-row">
       <div class="word-top">
@@ -597,20 +487,30 @@ function loadWords() {
     </div>`).join('');
 }
 
-// ── init ─────────────────────────────────────
+// ── auto-refresh ──────────────────────────────
+setInterval(loadCurrency, INTERVAL_CUR);
+setInterval(loadWeather,  INTERVAL_WX);
+setInterval(refreshTimestamps, 60000);
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  if (!lastCur || Date.now()-lastCur > INTERVAL_CUR) loadCurrency();
+  if (!lastWx  || Date.now()-lastWx  > INTERVAL_WX)  loadWeather();
+  refreshTimestamps();
+});
+
+// ── init ──────────────────────────────────────
 async function loadAll() {
-  const btn = $('refreshBtn');
-  btn.classList.add('spin');
+  $('refreshBtn').classList.add('spin');
   setHeader();
   loadSlavic();
   loadWords();
   await Promise.allSettled([loadCurrency(), loadWeather()]);
-  btn.classList.remove('spin');
+  refreshTimestamps();
+  $('refreshBtn').classList.remove('spin');
 }
 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
-}
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 
 loadAll();
 </script>
