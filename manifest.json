@@ -1,8 +1,8 @@
 {
-  "name": "Навігатор дня",
-  "short_name": "⠀",
-  "description": "Курси валют, погода, слов'янський календар і польські слова дня",
-  "start_url": "/",
+  "name": " ",
+  "short_name": " ",
+  "description": "Курсы валют, погода, славянский календарь и польские слова дня",
+  "start_url": "/vidget/",
   "display": "standalone",
   "background_color": "#0d0f14",
   "theme_color": "#0d0f14",
