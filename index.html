@@ -499,7 +499,8 @@ async function loadAll() {
   $('refreshBtn').classList.remove('spin');
 }
 
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+// unregister any old service workers
+if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
 
 loadAll();
 </script>
