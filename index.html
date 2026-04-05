@@ -228,6 +228,21 @@
     <div class="progress"><div class="progress-bar" id="barWx" style="width:100%"></div></div>
   </div>
 
+  <!-- TASKS -->
+  <div class="card">
+    <div class="lbl">📋 Список задач</div>
+    <div class="hint" style="font-size:0.62rem;color:var(--muted);margin-bottom:6px;font-style:italic">Через запятую или каждое с новой строки</div>
+    <textarea class="task-input" id="taskInput" placeholder="хлеб, молоко, позвонить маме…"></textarea>
+    <button class="btn-add-task" onclick="addTasks()">+ Добавить</button>
+    <div class="task-sub-hint">⚑ важное · ☰ тяни для сортировки</div>
+    <div class="tasks-list" id="taskList"></div>
+    <div class="task-empty" id="taskEmpty">Список пуст</div>
+    <div class="task-bottom">
+      <span class="task-count" id="taskCount">0 задач</span>
+      <button class="btn-clear-done" onclick="clearDone()">Убрать выполненные</button>
+    </div>
+  </div>
+
   <!-- SLAVIC CALENDAR -->
   <div class="card">
     <div class="lbl">🌿 Славянский календарь</div>
@@ -244,21 +259,6 @@
       <div class="skel" style="height:44px"></div>
       <div class="skel" style="height:44px;opacity:.65"></div>
       <div class="skel" style="height:44px;opacity:.35"></div>
-    </div>
-  </div>
-
-  <!-- TASKS -->
-  <div class="card">
-    <div class="lbl">📋 Список задач</div>
-    <div class="hint" style="font-size:0.62rem;color:var(--muted);margin-bottom:6px;font-style:italic">Через запятую или каждое с новой строки</div>
-    <textarea class="task-input" id="taskInput" placeholder="хлеб, молоко, позвонить маме…"></textarea>
-    <button class="btn-add-task" onclick="addTasks()">+ Добавить</button>
-    <div class="task-sub-hint">⚑ важное · ☰ тяни для сортировки</div>
-    <div class="tasks-list" id="taskList"></div>
-    <div class="task-empty" id="taskEmpty">Список пуст</div>
-    <div class="task-bottom">
-      <span class="task-count" id="taskCount">0 задач</span>
-      <button class="btn-clear-done" onclick="clearDone()">Убрать выполненные</button>
     </div>
   </div>
 </div>
@@ -442,67 +442,77 @@ const SLAV = [
 ];
 function loadSlavic() {
   const n = new Date(), m = n.getMonth()+1, d = n.getDate();
+  const today = m*100+d;
+  // exact match today
   let e = SLAV.find(x => x.m===m && x.d===d);
-  if (!e) {
-    const today = m*100+d;
-    const past = SLAV.filter(x => x.m*100+x.d <= today);
-    e = past.length ? past[past.length-1] : SLAV[SLAV.length-1];
+  if (e) {
+    $('slName').textContent = '🎉 ' + e.n;
+    $('slText').textContent = e.t;
+    $('slOmen').textContent = '🌿 ' + e.o;
+    return;
   }
-  $('slName').textContent = e.n;
-  $('slText').textContent = e.t;
-  $('slOmen').textContent = '🌿 ' + e.o;
+  // find next upcoming
+  let next = SLAV.find(x => x.m*100+x.d > today);
+  if (!next) next = SLAV[0]; // wrap to Jan 1
+  // days until next
+  const nextDate = new Date(n.getFullYear(), next.m-1, next.d);
+  if (nextDate < n) nextDate.setFullYear(n.getFullYear()+1);
+  const diff = Math.ceil((nextDate - n) / 86400000);
+  $('slName').textContent = next.n;
+  $('slText').textContent = next.t;
+  $('slOmen').textContent = `📅 Через ${diff} дн. · 🌿 ${next.o}`;
 }
 
 // ── polish words ──────────────────────────────
 const WORDS = [
-  {pl:'deszcz',    ru:'дождь',     ex:'Dziś jest deszcz. — Сегодня дождь.'},
-  {pl:'chmury',    ru:'облака',    ex:'Na niebie są chmury. — На небе облака.'},
-  {pl:'zdrowie',   ru:'здоровье',  ex:'Zdrowie jest ważne. — Здоровье важно.'},
-  {pl:'rodzina',   ru:'семья',     ex:'Kocham moją rodzinę. — Я люблю свою семью.'},
-  {pl:'praca',     ru:'работа',    ex:'Idę do pracy. — Иду на работу.'},
-  {pl:'sklep',     ru:'магазин',   ex:'Idę do sklepu. — Иду в магазин.'},
-  {pl:'ulica',     ru:'улица',     ex:'Na ulicy jest cicho. — На улице тихо.'},
-  {pl:'pociąg',    ru:'поезд',     ex:'Pociąg odjeżdża. — Поезд отправляется.'},
-  {pl:'herbata',   ru:'чай',       ex:'Czy chcesz herbaty? — Хочешь чаю?'},
-  {pl:'chleb',     ru:'хлеб',      ex:'Świeży chleb. — Свежий хлеб.'},
-  {pl:'okno',      ru:'окно',      ex:'Otwórz okno. — Открой окно.'},
-  {pl:'klucz',     ru:'ключ',      ex:'Mam klucz. — У меня есть ключ.'},
-  {pl:'pogoda',    ru:'погода',    ex:'Jaka jest pogoda? — Какая погода?'},
-  {pl:'rano',      ru:'утро',      ex:'Rano piję kawę. — Утром пью кофе.'},
-  {pl:'wieczór',   ru:'вечер',     ex:'Dobry wieczór! — Добрый вечер!'},
-  {pl:'pies',      ru:'собака',    ex:'To jest mój pies. — Это моя собака.'},
-  {pl:'las',       ru:'лес',       ex:'W lesie jest cicho. — В лесу тихо.'},
-  {pl:'rzeka',     ru:'река',      ex:'Rzeka jest zimna. — Река холодная.'},
-  {pl:'słońce',    ru:'солнце',    ex:'Dziś świeci słońce. — Сегодня светит солнце.'},
-  {pl:'wiosna',    ru:'весна',     ex:'Wiosna już jest! — Весна уже пришла!'},
-  {pl:'lato',      ru:'лето',      ex:'Uwielbiam lato. — Я обожаю лето.'},
-  {pl:'jesień',    ru:'осень',     ex:'Jesień jest piękna. — Осень красивая.'},
-  {pl:'zima',      ru:'зима',      ex:'Zima jest mroźna. — Зима морозная.'},
-  {pl:'pieniądze', ru:'деньги',    ex:'Mam mało pieniędzy. — У меня мало денег.'},
-  {pl:'czas',      ru:'время',     ex:'Mam czas. — У меня есть время.'},
-  {pl:'miasto',    ru:'город',     ex:'Lubię to miasto. — Мне нравится этот город.'},
-  {pl:'droga',     ru:'дорога',    ex:'Droga jest długa. — Дорога длинная.'},
-  {pl:'kwiat',     ru:'цветок',    ex:'To piękny kwiat. — Это красивый цветок.'},
-  {pl:'dziecko',   ru:'ребёнок',   ex:'Moje dziecko śpi. — Мой ребёнок спит.'},
-  {pl:'szkoła',    ru:'школа',     ex:'Idę do szkoły. — Иду в школу.'},
-  {pl:'lekarz',    ru:'врач',      ex:'Idę do lekarza. — Иду к врачу.'},
-  {pl:'apteka',    ru:'аптека',    ex:'Gdzie jest apteka? — Где аптека?'},
-  {pl:'samochód',  ru:'машина',    ex:'Mój samochód jest niebieski. — Моя машина синяя.'},
-  {pl:'rower',     ru:'велосипед', ex:'Lubię jazdę na rowerze. — Люблю ездить на велосипеде.'},
-  {pl:'mieszkanie',ru:'квартира',  ex:'Mam nowe mieszkanie. — У меня новая квартира.'},
-  {pl:'sąsiad',    ru:'сосед',     ex:'Mój sąsiad jest miły. — Мой сосед приятный.'},
-  {pl:'przyjaciel',ru:'друг',      ex:'Mam dobrego przyjaciela. — У меня хороший друг.'},
-  {pl:'spotkanie', ru:'встреча',   ex:'Mam ważne spotkanie. — У меня важная встреча.'},
-  {pl:'telefon',   ru:'телефон',   ex:'Gdzie jest mój telefon? — Где мой телефон?'},
-  {pl:'kuchnia',   ru:'кухня',     ex:'Gotuję w kuchni. — Готовлю на кухне.'},
-  {pl:'ptak',      ru:'птица',     ex:'Ptak śpiewa. — Птица поёт.'},
-  {pl:'drzewo',    ru:'дерево',    ex:'To wysokie drzewo. — Это высокое дерево.'},
-  {pl:'niebo',     ru:'небо',      ex:'Niebo jest niebieskie. — Небо голубое.'},
-  {pl:'morze',     ru:'море',      ex:'Morze jest zimne. — Море холодное.'},
-  {pl:'cukier',    ru:'сахар',     ex:'Czy masz cukier? — У тебя есть сахар?'},
-  {pl:'mleko',     ru:'молоко',    ex:'Chcę mleko. — Я хочу молока.'},
-  {pl:'woda',      ru:'вода',      ex:'Daj mi wody. — Дай мне воды.'},
-  {pl:'kawa',      ru:'кофе',      ex:'Lubię kawę. — Я люблю кофе.'},
+  {pl:'jednak',         ru:'однако / тем не менее',  ex:'Jednak nie mogłem tego zrobić. — Однако я не смог этого сделать.'},
+  {pl:'mimo że',        ru:'несмотря на то что',      ex:'Mimo że padało, wyszedłem. — Несмотря на дождь, я вышел.'},
+  {pl:'ponadto',        ru:'кроме того / помимо',     ex:'Ponadto mamy inne opcje. — Кроме того, у нас есть другие варианты.'},
+  {pl:'zatem',          ru:'итак / следовательно',    ex:'Zatem co robimy? — Итак, что мы делаем?'},
+  {pl:'natomiast',      ru:'тогда как / а вот',       ex:'On pracuje, natomiast ona studiuje. — Он работает, а она учится.'},
+  {pl:'właściwie',      ru:'собственно / в сущности', ex:'Właściwie to dobry pomysł. — Собственно, это хорошая идея.'},
+  {pl:'zwłaszcza',      ru:'особенно / в особенности',ex:'Lubię owoce, zwłaszcza jabłka. — Люблю фрукты, особенно яблоки.'},
+  {pl:'wymagać',        ru:'требовать',               ex:'Ta praca wymaga doświadczenia. — Эта работа требует опыта.'},
+  {pl:'osiągnąć',       ru:'достичь / добиться',      ex:'Chcę osiągnąć swój cel. — Я хочу достичь своей цели.'},
+  {pl:'zrezygnować',    ru:'отказаться / уйти',       ex:'Zrezygnował z pracy. — Он ушёл с работы.'},
+  {pl:'przekonać',      ru:'убедить',                 ex:'Udało mi się go przekonać. — Мне удалось его убедить.'},
+  {pl:'przyznać',       ru:'признать / согласиться',  ex:'Muszę przyznać, że miałeś rację. — Должен признать, ты был прав.'},
+  {pl:'wynikać',        ru:'следовать / вытекать',    ex:'Z tego wynika, że mam rację. — Из этого следует, что я прав.'},
+  {pl:'dotyczyć',       ru:'касаться / относиться',   ex:'To dotyczy wszystkich. — Это касается всех.'},
+  {pl:'zapewnić',       ru:'обеспечить / заверить',   ex:'Zapewniam cię, że to prawda. — Заверяю тебя, это правда.'},
+  {pl:'skorzystać',     ru:'воспользоваться',         ex:'Skorzystaj z okazji. — Воспользуйся возможностью.'},
+  {pl:'przedsiębiorstwo',ru:'предприятие / фирма',    ex:'To duże przedsiębiorstwo. — Это крупное предприятие.'},
+  {pl:'zobowiązanie',   ru:'обязательство',           ex:'Mam zobowiązania finansowe. — У меня финансовые обязательства.'},
+  {pl:'świadczenie',    ru:'пособие / услуга',        ex:'Świadczenie socjalne. — Социальное пособие.'},
+  {pl:'wynajmować',     ru:'арендовать / снимать',    ex:'Wynajmuję mieszkanie w centrum. — Снимаю квартиру в центре.'},
+  {pl:'rozwiązanie',    ru:'решение / выход',         ex:'Nie ma idealnego rozwiązania. — Нет идеального решения.'},
+  {pl:'okoliczność',    ru:'обстоятельство',          ex:'W tych okolicznościach to trudne. — В этих обстоятельствах это сложно.'},
+  {pl:'nabyć',          ru:'приобрести',              ex:'Nabyłem nowe umiejętności. — Я приобрёл новые навыки.'},
+  {pl:'podejście',      ru:'подход',                  ex:'Masz właściwe podejście. — У тебя правильный подход.'},
+  {pl:'wdrożyć',        ru:'внедрить / запустить',    ex:'Wdrożyliśmy nowy system. — Мы внедрили новую систему.'},
+  {pl:'sprawdzić się',  ru:'оправдать себя / сработать',ex:'Ten plan się sprawdził. — Этот план сработал.'},
+  {pl:'zależy od',      ru:'зависит от',              ex:'To zależy od sytuacji. — Это зависит от ситуации.'},
+  {pl:'z kolei',        ru:'в свою очередь',          ex:'On z kolei nie wiedział. — Он, в свою очередь, не знал.'},
+  {pl:'narażony na',    ru:'подвержен / exposed to',  ex:'Jest narażony na stres. — Он подвержен стрессу.'},
+  {pl:'tymczasem',      ru:'тем временем',            ex:'Tymczasem sytuacja się zmieniła. — Тем временем ситуация изменилась.'},
+  {pl:'obowiązywać',    ru:'действовать / быть в силе',ex:'Przepisy nadal obowiązują. — Правила всё ещё действуют.'},
+  {pl:'skuteczny',      ru:'эффективный / действенный',ex:'To skuteczna metoda. — Это эффективный метод.'},
+  {pl:'przede wszystkim',ru:'прежде всего',           ex:'Przede wszystkim bądź szczery. — Прежде всего будь честным.'},
+  {pl:'stopniowo',      ru:'постепенно',              ex:'Stopniowo poprawia się. — Постепенно улучшается.'},
+  {pl:'świadomość',     ru:'осознанность / сознание', ex:'Mam świadomość problemu. — Я осознаю проблему.'},
+  {pl:'współpraca',     ru:'сотрудничество',          ex:'Dobra współpraca jest kluczem. — Хорошее сотрудничество — это ключ.'},
+  {pl:'zaświadczenie',  ru:'справка / свидетельство', ex:'Potrzebuję zaświadczenia z pracy. — Мне нужна справка с работы.'},
+  {pl:'wniosek',        ru:'заявление / вывод',       ex:'Złożyłem wniosek o urlop. — Я подал заявление на отпуск.'},
+  {pl:'niezbędny',      ru:'необходимый / обязательный',ex:'To niezbędny krok. — Это необходимый шаг.'},
+  {pl:'rozróżniać',     ru:'различать / разграничивать',ex:'Trzeba rozróżniać te dwa pojęcia. — Нужно различать эти два понятия.'},
+  {pl:'uprzejmie',      ru:'любезно / вежливо',       ex:'Uprzejmie proszę o odpowiedź. — Любезно прошу ответить.'},
+  {pl:'w związku z',    ru:'в связи с',               ex:'W związku z tym piszę do was. — В связи с этим пишу вам.'},
+  {pl:'zgodnie z',      ru:'согласно / в соответствии с',ex:'Zgodnie z umową. — Согласно договору.'},
+  {pl:'na podstawie',   ru:'на основании',            ex:'Na podstawie dokumentów. — На основании документов.'},
+  {pl:'udostępnić',     ru:'предоставить / открыть доступ',ex:'Udostępnił mi swoje notatki. — Он предоставил мне свои записи.'},
+  {pl:'skłonny',        ru:'склонный / готовый',      ex:'Jestem skłonny to zrobić. — Я готов это сделать.'},
+  {pl:'wątpliwość',     ru:'сомнение',                ex:'Mam co do tego wątpliwości. — У меня есть сомнения по этому поводу.'},
+  {pl:'niezależnie od', ru:'независимо от',           ex:'Niezależnie od wyniku, dziękuję. — Независимо от результата, спасибо.'},
 ];
 function loadWords() {
   const n = new Date();
