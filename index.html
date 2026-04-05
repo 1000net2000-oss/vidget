@@ -78,6 +78,7 @@
     .card:nth-child(3){animation-delay:.15s;grid-column:1/-1}
     .card:nth-child(4){animation-delay:.20s;grid-column:1/-1}
     .card:nth-child(5){animation-delay:.25s;grid-column:1/-1}
+    .card:nth-child(6){animation-delay:.30s;grid-column:1/-1}
     .lbl { font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 9px; }
     /* timestamps */
     .updated { font-size: 0.65rem; color: var(--muted); margin-top: 8px; display: flex; align-items: center; gap: 5px; }
@@ -118,6 +119,37 @@
     .word-sep { font-size: 0.72rem; color: var(--muted); }
     .word-ru { font-size: 0.76rem; color: var(--mut2); }
     .word-ex { font-size: 0.68rem; color: var(--muted); font-style: italic; margin-top: 2px; line-height: 1.5; }
+    /* tasks */
+    .task-item { display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--s2); border:1px solid var(--bord); border-radius:8px; transition:border-color 0.2s,background 0.2s; touch-action:none; position:relative; }
+    .task-item.urgent { border-color:rgba(192,90,58,0.5); background:rgba(192,90,58,0.08); }
+    .task-item.done { opacity:0.4; }
+    .task-item.is-dragging { opacity:0.3; }
+    .drag-handle { color:var(--muted); font-size:1rem; cursor:grab; flex-shrink:0; padding:0 2px; line-height:1; touch-action:none; }
+    .urgent-dot { width:7px; height:7px; border-radius:50%; background:#e07050; display:none; flex-shrink:0; box-shadow:0 0 6px rgba(192,90,58,0.6); }
+    .task-item.urgent .urgent-dot { display:block; }
+    .task-cb { width:18px; height:18px; border-radius:5px; border:1.5px solid var(--bord2); background:none; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all 0.2s; cursor:pointer; }
+    .task-cb.checked { background:var(--teal); border-color:var(--teal); }
+    .task-cb.checked::after { content:"✓"; color:white; font-size:0.65rem; font-weight:700; }
+    .task-text { flex:1; font-size:0.82rem; line-height:1.45; color:var(--cream); }
+    .task-item.urgent .task-text { color:#f0c090; }
+    .task-item.done .task-text { text-decoration:line-through; color:var(--muted); }
+    .task-urgent-btn { background:none; border:none; font-size:0.9rem; cursor:pointer; padding:0; flex-shrink:0; opacity:0.4; transition:opacity 0.2s; }
+    .task-item.urgent .task-urgent-btn { opacity:1; }
+    .task-del { background:none; border:none; color:var(--muted); font-size:1.1rem; cursor:pointer; padding:0; line-height:1; flex-shrink:0; }
+    .task-del:active { color:var(--red); }
+    .task-input { width:100%; background:var(--s2); border:1px solid var(--bord2); border-radius:8px; color:var(--cream); font-family:"Raleway",sans-serif; font-size:0.82rem; padding:11px 14px; outline:none; resize:none; height:70px; line-height:1.5; transition:border-color 0.2s; margin-bottom:8px; }
+    .task-input::placeholder { color:var(--muted); }
+    .task-input:focus { border-color:var(--gold); }
+    .btn-add-task { width:100%; padding:11px 0; border-radius:8px; border:none; background:linear-gradient(135deg,var(--gold),var(--gold2)); color:#0d0f14; font-family:"Raleway",sans-serif; font-size:0.78rem; font-weight:700; cursor:pointer; margin-bottom:10px; }
+    .btn-add-task:active { opacity:0.8; }
+    .task-sub-hint { font-size:0.6rem; color:var(--muted); font-style:italic; text-align:center; margin-bottom:10px; }
+    .tasks-list { display:flex; flex-direction:column; gap:6px; }
+    .task-empty { text-align:center; padding:18px 0; font-size:0.72rem; color:var(--muted); font-style:italic; }
+    .task-bottom { display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px solid var(--bord); }
+    .task-count { font-size:0.65rem; color:var(--muted); }
+    .btn-clear-done { background:none; border:none; font-size:0.65rem; color:var(--muted); cursor:pointer; font-family:"Raleway",sans-serif; }
+    .btn-clear-done:active { color:var(--red); }
+    .drag-ghost { position:fixed; pointer-events:none; z-index:1000; background:var(--s1); border:1px solid var(--gold); border-radius:8px; padding:10px 14px; font-size:0.82rem; color:var(--cream); box-shadow:0 8px 24px rgba(0,0,0,0.5); opacity:0.95; transform:rotate(1.5deg); }
     .skel { background: linear-gradient(90deg, var(--s2) 25%, var(--s3) 50%, var(--s2) 75%); background-size: 200% 100%; animation: shim 1.5s infinite; border-radius: 4px; }
     @keyframes shim { to { background-position: -200% 0; } }
   </style>
@@ -212,6 +244,21 @@
       <div class="skel" style="height:44px"></div>
       <div class="skel" style="height:44px;opacity:.65"></div>
       <div class="skel" style="height:44px;opacity:.35"></div>
+    </div>
+  </div>
+
+  <!-- TASKS -->
+  <div class="card">
+    <div class="lbl">📋 Список задач</div>
+    <div class="hint" style="font-size:0.62rem;color:var(--muted);margin-bottom:6px;font-style:italic">Через запятую или каждое с новой строки</div>
+    <textarea class="task-input" id="taskInput" placeholder="хлеб, молоко, позвонить маме…"></textarea>
+    <button class="btn-add-task" onclick="addTasks()">+ Добавить</button>
+    <div class="task-sub-hint">⚑ важное · ☰ тяни для сортировки</div>
+    <div class="tasks-list" id="taskList"></div>
+    <div class="task-empty" id="taskEmpty">Список пуст</div>
+    <div class="task-bottom">
+      <span class="task-count" id="taskCount">0 задач</span>
+      <button class="btn-clear-done" onclick="clearDone()">Убрать выполненные</button>
     </div>
   </div>
 </div>
@@ -487,6 +534,131 @@ document.addEventListener('visibilitychange', () => {
   if (!lastWx  || Date.now()-lastWx  > INTERVAL_WX)  loadWeather();
   refreshTimestamps();
 });
+
+
+// ── tasks ─────────────────────────────────────
+let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+
+function saveTasks() { localStorage.setItem('tasks', JSON.stringify(tasks)); }
+
+function renderTasks() {
+  const list = document.getElementById('taskList');
+  const empty = document.getElementById('taskEmpty');
+  const count = document.getElementById('taskCount');
+  if (tasks.length === 0) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    count.textContent = '0 задач';
+    return;
+  }
+  empty.style.display = 'none';
+  const done = tasks.filter(t => t.done).length;
+  count.textContent = `${done} из ${tasks.length} выполнено`;
+  list.innerHTML = tasks.map(t => `
+    <div class="task-item ${t.done?'done':''} ${t.urgent&&!t.done?'urgent':''}" data-id="${t.id}">
+      <div class="drag-handle" data-drag="${t.id}">☰</div>
+      <div class="urgent-dot"></div>
+      <div class="task-cb ${t.done?'checked':''}" onclick="toggleTask(${t.id})"></div>
+      <div class="task-text">${t.text}</div>
+      <button class="task-urgent-btn" onclick="toggleUrgent(${t.id})">⚑</button>
+      <button class="task-del" onclick="removeTask(${t.id})">×</button>
+    </div>`).join('');
+  initTaskDrag();
+}
+
+function addTasks() {
+  const input = document.getElementById('taskInput');
+  const raw = input.value.trim();
+  if (!raw) return;
+  raw.split(/[,\n]+/).map(s => s.trim()).filter(Boolean)
+    .forEach(text => tasks.push({ id: Date.now() + Math.random(), text, done: false, urgent: false }));
+  input.value = '';
+  saveTasks(); renderTasks();
+}
+
+function toggleTask(id) {
+  const t = tasks.find(x => x.id === id);
+  if (t) { t.done = !t.done; if (t.done) t.urgent = false; }
+  saveTasks(); renderTasks();
+}
+
+function toggleUrgent(id) {
+  const t = tasks.find(x => x.id === id);
+  if (t && !t.done) t.urgent = !t.urgent;
+  if (navigator.vibrate) navigator.vibrate(30);
+  saveTasks(); renderTasks();
+}
+
+function removeTask(id) {
+  tasks = tasks.filter(x => x.id !== id);
+  saveTasks(); renderTasks();
+}
+
+function clearDone() {
+  tasks = tasks.filter(x => !x.done);
+  saveTasks(); renderTasks();
+}
+
+// touch drag
+let dragId = null, dragGhost = null;
+
+function initTaskDrag() {
+  document.querySelectorAll('[data-drag]').forEach(h => {
+    h.addEventListener('touchstart', dragStart, { passive: false });
+  });
+}
+
+function dragStart(e) {
+  e.preventDefault();
+  dragId = parseFloat(this.dataset.drag);
+  const t = tasks.find(x => x.id === dragId);
+  if (!t) return;
+  const touch = e.touches[0];
+  dragGhost = document.createElement('div');
+  dragGhost.className = 'drag-ghost';
+  dragGhost.textContent = t.text;
+  dragGhost.style.left = '20px';
+  dragGhost.style.width = (document.getElementById('taskList').offsetWidth) + 'px';
+  dragGhost.style.top = (touch.clientY - 20) + 'px';
+  document.body.appendChild(dragGhost);
+  document.querySelector(`[data-id="${dragId}"]`).classList.add('is-dragging');
+  document.addEventListener('touchmove', dragMove, { passive: false });
+  document.addEventListener('touchend', dragEnd);
+}
+
+function dragMove(e) {
+  e.preventDefault();
+  if (!dragGhost) return;
+  const touch = e.touches[0];
+  dragGhost.style.top = (touch.clientY - 20) + 'px';
+  document.querySelectorAll('.task-item:not(.is-dragging)').forEach(el => el.style.borderColor = '');
+  const target = [...document.querySelectorAll('.task-item:not(.is-dragging)')].find(el => {
+    const r = el.getBoundingClientRect();
+    return touch.clientY >= r.top && touch.clientY <= r.bottom;
+  });
+  if (target) target.style.borderColor = 'var(--gold)';
+}
+
+function dragEnd(e) {
+  if (!dragGhost) return;
+  const touch = e.changedTouches[0];
+  const target = [...document.querySelectorAll('.task-item:not(.is-dragging)')].find(el => {
+    const r = el.getBoundingClientRect();
+    return touch.clientY >= r.top && touch.clientY <= r.bottom;
+  });
+  if (target) {
+    const targetId = parseFloat(target.dataset.id);
+    const si = tasks.findIndex(x => x.id === dragId);
+    const ti = tasks.findIndex(x => x.id === targetId);
+    if (si !== -1 && ti !== -1) { const [item] = tasks.splice(si, 1); tasks.splice(ti, 0, item); }
+  }
+  dragGhost.remove(); dragGhost = null; dragId = null;
+  document.removeEventListener('touchmove', dragMove);
+  document.removeEventListener('touchend', dragEnd);
+  saveTasks(); renderTasks();
+}
+
+renderTasks();
 
 // ── init ──────────────────────────────────────
 async function loadAll() {
