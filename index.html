@@ -1,855 +1,690 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="theme-color" content="#0f0f12">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content=" ">
-<link rel="manifest" href="manifest.json">
-<title>Отчёт о работе</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
-
-  :root {
-    --bg: #0f0f12;
-    --surface: #1a1a22;
-    --surface2: #22222e;
-    --accent: #6ee7b7;
-    --accent2: #818cf8;
-    --accent3: #f9a8d4;
-    --text: #e2e8f0;
-    --muted: #64748b;
-    --danger: #f87171;
-    --orange: #fb923c;
-    --radius: 14px;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    min-height: 100vh;
-    padding-bottom: 40px;
-  }
-
-  .page { display: none; min-height: 100vh; }
-  .page.active { display: block; }
-
-  header {
-    background: var(--surface);
-    padding: 18px 16px 14px;
-    border-bottom: 1px solid #2a2a38;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  .header-title {
-    font-family: 'Unbounded', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--accent);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-
-  .month-selector { display: flex; align-items: center; gap: 10px; }
-
-  .month-btn {
-    background: var(--surface2);
-    border: none;
-    color: var(--text);
-    width: 38px; height: 38px;
-    border-radius: 10px;
-    font-size: 18px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .month-btn:active { background: #2e2e42; }
-
-  .month-label {
-    flex: 1;
-    text-align: center;
-    font-family: 'Unbounded', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-  }
-
-  .totals-bar {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    padding: 12px 16px;
-    background: var(--surface);
-    border-bottom: 1px solid #2a2a38;
-  }
-
-  .total-card {
-    background: var(--surface2);
-    border-radius: 10px;
-    padding: 10px 12px;
-  }
-
-  .total-label {
-    font-size: 10px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 4px;
-  }
-
-  .total-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    margin-bottom: 2px;
-  }
-
-  .total-name { color: var(--muted); }
-  .total-val { font-weight: 600; color: var(--accent); font-family: 'Unbounded', sans-serif; font-size: 13px; }
-
-  .mob-total {
-    background: var(--surface2);
-    border-radius: 10px;
-    padding: 10px 12px;
-    grid-column: 1 / -1;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .mob-total .total-label { margin-bottom: 0; }
-  .mob-total .total-val { color: var(--accent2); }
-
-  .extra-totals {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    padding: 10px 16px;
-    background: var(--surface);
-    border-bottom: 1px solid #2a2a38;
-  }
-
-  .extra-total-btn {
-    background: var(--surface2);
-    border: 1px solid #2a2a38;
-    border-radius: 10px;
-    padding: 10px 12px;
-    cursor: pointer;
-    text-align: left;
-    transition: border-color 0.2s;
-  }
-  .extra-total-btn:active { border-color: var(--orange); }
-  .extra-total-btn.travel:active { border-color: var(--accent2); }
-  .extra-total-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
-  .extra-total-val { font-family: 'Unbounded', sans-serif; font-size: 13px; font-weight: 600; color: var(--orange); }
-  .extra-total-btn.travel .extra-total-val { color: var(--accent2); }
-  .extra-total-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
-  .extra-total-arrow { font-size: 10px; color: var(--muted); margin-top: 4px; }
-
-  .days-list {
-    padding: 12px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .day-card {
-    background: var(--surface);
-    border-radius: var(--radius);
-    overflow: hidden;
-    border: 1px solid #2a2a38;
-  }
-  .day-card.has-data { border-color: #2e3a4e; }
-
-  .day-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 14px;
-    cursor: pointer;
-    user-select: none;
-  }
-
-  .day-date { font-family: 'Unbounded', sans-serif; font-size: 13px; font-weight: 600; }
-  .day-weekday { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  .day-preview { display: flex; gap: 6px; flex-wrap: wrap; }
-
-  .preview-chip {
-    background: #1e3a2e;
-    color: var(--accent);
-    font-size: 10px;
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-weight: 600;
-  }
-  .preview-chip.mob    { background: #1e1e3a; color: var(--accent2); }
-  .preview-chip.extra  { background: #2a1e0e; color: var(--orange); }
-  .preview-chip.travel { background: #1a1e2e; color: var(--accent2); }
-
-  .chevron { color: var(--muted); font-size: 12px; transition: transform 0.2s; flex-shrink: 0; margin-left: 8px; }
-  .day-card.open .chevron { transform: rotate(180deg); }
-
-  .day-body { display: none; padding: 0 14px 14px; flex-direction: column; gap: 10px; }
-  .day-card.open .day-body { display: flex; }
-
-  .section-label {
-    font-size: 10px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 6px;
-    margin-top: 4px;
-  }
-
-  .fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .field { display: flex; flex-direction: column; gap: 4px; }
-  .field label { font-size: 11px; color: var(--muted); }
-  .field input {
-    background: var(--surface2);
-    border: 1px solid #2a2a38;
-    border-radius: 8px;
-    color: var(--text);
-    font-size: 16px;
-    padding: 8px 10px;
-    width: 100%;
-    font-family: 'Unbounded', sans-serif;
-    font-weight: 600;
-    transition: border-color 0.15s;
-    -webkit-appearance: none;
-  }
-  .field input:focus { outline: none; border-color: var(--accent); }
-  .field.mob input:focus { border-color: var(--accent2); }
-
-  .work-row { display: flex; gap: 6px; align-items: stretch; width: 100%; }
-  .work-desc {
-    min-width: 0;
-    flex: 1 1 auto;
-    background: var(--surface2);
-    border: 1px solid #2a2a38;
-    border-radius: 8px;
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    padding: 8px 10px;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .work-desc:focus { border-color: var(--orange); }
-  .work-mins {
-    width: 58px;
-    min-width: 58px;
-    max-width: 58px;
-    flex: 0 0 58px;
-    background: var(--surface2);
-    border: 1px solid #2a2a38;
-    border-radius: 8px;
-    color: var(--text);
-    font-family: 'Unbounded', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    padding: 8px 4px;
-    text-align: center;
-    outline: none;
-    -webkit-appearance: none;
-    transition: border-color 0.15s;
-  }
-  .work-mins:focus { border-color: var(--orange); }
-  .add-work-btn {
-    background: var(--orange);
-    border: none;
-    border-radius: 8px;
-    color: #0f0f12;
-    font-size: 18px;
-    width: 38px;
-    min-width: 38px;
-    max-width: 38px;
-    flex: 0 0 38px;
-    cursor: pointer;
-    font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .add-work-btn:active { opacity: 0.8; }
-
-  .travel-row { display: flex; gap: 8px; }
-  .travel-mins {
-    flex: 1;
-    background: var(--surface2);
-    border: 1px solid #2a2a38;
-    border-radius: 8px;
-    color: var(--text);
-    font-family: 'Unbounded', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    padding: 8px 10px;
-    text-align: center;
-    outline: none;
-    -webkit-appearance: none;
-    transition: border-color 0.15s;
-  }
-  .travel-mins:focus { border-color: var(--accent2); }
-  .add-travel-btn {
-    background: var(--accent2);
-    border: none;
-    border-radius: 8px;
-    color: #0f0f12;
-    font-size: 18px;
-    width: 38px;
-    flex-shrink: 0;
-    cursor: pointer;
-    font-weight: 700;
-  }
-  .add-travel-btn:active { opacity: 0.8; }
-
-  .day-time-totals { display: flex; gap: 8px; }
-  .day-time-chip {
-    flex: 1;
-    background: var(--surface2);
-    border-radius: 8px;
-    padding: 7px 10px;
-    font-size: 11px;
-    color: var(--muted);
-  }
-  .day-time-chip span { display: block; font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 600; color: var(--orange); margin-top: 2px; }
-  .day-time-chip.travel span { color: var(--accent2); }
-
-  .work-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 8px;
-    background: var(--surface2);
-    border: 1px solid #2a2a38;
-    border-radius: 7px;
-  }
-  .work-item-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--orange); flex-shrink: 0; }
-  .work-item-text { flex: 1; font-size: 12px; color: var(--text); }
-  .work-item-min { font-size: 11px; color: var(--orange); font-weight: 600; font-family: 'Unbounded', sans-serif; }
-  .work-item-del { background: none; border: none; color: var(--muted); font-size: 1rem; cursor: pointer; margin-left: 4px; }
-  .work-item-del:active { color: var(--danger); }
-
-  .clear-btn {
-    background: none;
-    border: 1px solid #2a2a38;
-    color: var(--muted);
-    border-radius: 8px;
-    padding: 7px 12px;
-    font-size: 12px;
-    cursor: pointer;
-    align-self: flex-end;
-    transition: all 0.15s;
-  }
-  .clear-btn:active { background: #2a2a38; color: var(--danger); }
-
-  .divider { height: 1px; background: #2a2a38; }
-
-  input[type=number]::-webkit-inner-spin-button,
-  input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
-  input[type=number] { -moz-appearance: textfield; }
-  input.formula-input { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 400; }
-
-  /* HISTORY PAGE */
-  .hist-header {
-    background: var(--surface);
-    padding: 16px;
-    border-bottom: 1px solid #2a2a38;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .back-btn {
-    background: var(--surface2);
-    border: none;
-    color: var(--text);
-    width: 36px; height: 36px;
-    border-radius: 10px;
-    font-size: 18px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .back-btn:active { background: #2e2e42; }
-  .hist-title { font-family: 'Unbounded', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.05em; }
-
-  .hist-tabs { display: flex; gap: 8px; padding: 12px 16px; }
-  .hist-tab {
-    flex: 1; padding: 9px; border-radius: 8px;
-    border: 1px solid #2a2a38; background: none;
-    color: var(--muted); font-family: 'Inter', sans-serif;
-    font-size: 12px; font-weight: 600; cursor: pointer;
-  }
-  .hist-tab.on { background: var(--surface2); border-color: var(--orange); color: var(--orange); }
-  .hist-tab.on.travel { border-color: var(--accent2); color: var(--accent2); }
-
-  .hist-content { padding: 0 16px 24px; }
-
-  .hist-day { margin-bottom: 14px; }
-  .hist-day-hdr {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 6px 0; border-bottom: 1px solid #2a2a38; margin-bottom: 6px;
-  }
-  .hist-day-date { font-size: 12px; color: var(--accent); font-family: 'Unbounded', sans-serif; font-weight: 600; }
-  .hist-day-total { font-size: 11px; color: var(--muted); }
-  .hist-day-total b { color: var(--orange); }
-  .hist-day-total b.travel { color: var(--accent2); }
-
-  .hist-item {
-    display: flex; align-items: center; gap: 8px;
-    padding: 7px 10px; background: var(--surface);
-    border: 1px solid #2a2a38; border-radius: 8px; margin-bottom: 4px;
-  }
-  .hist-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--orange); flex-shrink: 0; }
-  .hist-dot.travel { background: var(--accent2); }
-  .hist-text { flex: 1; font-size: 13px; color: var(--text); }
-  .hist-min { font-size: 12px; color: var(--orange); font-weight: 600; font-family: 'Unbounded', sans-serif; }
-  .hist-min.travel { color: var(--accent2); }
-
-  .export-btn {
-    width: 100%; margin-top: 16px; padding: 12px;
-    border-radius: 10px; border: 1px solid #2a2a38;
-    background: none; color: var(--muted);
-    font-family: 'Inter', sans-serif; font-size: 13px; cursor: pointer;
-  }
-  .export-btn:active { border-color: var(--accent); color: var(--accent); }
-  .hist-empty { text-align: center; padding: 32px 0; font-size: 13px; color: var(--muted); }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d0f14" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Навигатор" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.svg" />
+  <title>Навигатор дня</title>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&family=Literata:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:    #0d0f14;
+      --s1:    #13161d;
+      --s2:    #191d26;
+      --s3:    #1f2330;
+      --gold:  #b8975a;
+      --gold2: #d4af6e;
+      --gold3: #ead898;
+      --teal:  #4a8c7f;
+      --teal2: #68b5a4;
+      --red:   #c05a3a;
+      --cream: #e8dfc8;
+      --muted: #6b7280;
+      --mut2:  #9ca3af;
+      --bord:  rgba(184,151,90,0.12);
+      --bord2: rgba(184,151,90,0.25);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Raleway', sans-serif;
+      background: var(--bg);
+      color: var(--cream);
+      min-height: 100dvh;
+      padding-top: env(safe-area-inset-top, 0);
+      padding-bottom: env(safe-area-inset-bottom, 16px);
+      background-image:
+        radial-gradient(ellipse 70% 50% at 15% 5%,  rgba(184,151,90,0.055) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 70% at 85% 95%, rgba(74,140,127,0.055) 0%, transparent 55%);
+    }
+    header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 14px 12px;
+      border-bottom: 1px solid var(--bord);
+    }
+    .logo { width: 44px; height: 44px; flex-shrink: 0; }
+    .h-meta { flex: 1; }
+    .h-title {
+      font-family: 'Literata', serif;
+      font-size: 1.38rem; font-weight: 600;
+      color: var(--gold2); letter-spacing: 0.02em; line-height: 1;
+    }
+    .h-date { font-size: 0.68rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 3px; }
+    .refresh-btn {
+      background: none; border: 1px solid var(--bord2); color: var(--muted);
+      width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; flex-shrink: 0;
+    }
+    .refresh-btn:active { border-color: var(--gold); color: var(--gold); transform: scale(0.9); }
+    .refresh-btn.spin svg { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 9px; padding: 11px 11px 16px;
+    }
+    .card {
+      background: var(--s1); border: 1px solid var(--bord);
+      border-radius: 14px; padding: 13px;
+      animation: fadeUp 0.45s ease both;
+    }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    .card:nth-child(1){animation-delay:.05s}
+    .card:nth-child(2){animation-delay:.10s}
+    .card:nth-child(3){animation-delay:.15s;grid-column:1/-1}
+    .card:nth-child(4){animation-delay:.20s;grid-column:1/-1}
+    .card:nth-child(5){animation-delay:.25s;grid-column:1/-1}
+    .card:nth-child(6){animation-delay:.30s;grid-column:1/-1}
+    .lbl { font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 9px; }
+    /* timestamps */
+    .updated { font-size: 0.65rem; color: var(--muted); margin-top: 8px; display: flex; align-items: center; gap: 5px; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); flex-shrink: 0; animation: pulse 2s ease-in-out infinite; }
+    .dot.stale { background: var(--muted); animation: none; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .progress { height: 2px; background: var(--bord); border-radius: 1px; margin-top: 6px; overflow: hidden; }
+    .progress-bar { height: 100%; background: linear-gradient(90deg, var(--teal), var(--gold)); border-radius: 1px; }
+    /* currency */
+    .rate-val { font-family: 'Literata', serif; font-size: 2.15rem; font-weight: 300; line-height: 1; color: var(--gold3); }
+    .rate-unit { font-size: 0.70rem; color: var(--muted); margin-top: 4px; }
+    .rate-badge { font-size: 0.68rem; margin-top: 6px; padding: 2px 7px; border-radius: 4px; display: inline-block; background: rgba(107,114,128,0.15); color: var(--mut2); }
+    /* weather */
+    .w-main { display: flex; align-items: flex-end; gap: 10px; margin-bottom: 8px; }
+    .w-temp { font-family: 'Literata', serif; font-size: 3rem; font-weight: 300; line-height: 1; color: var(--cream); }
+    .w-temp sup { font-size: 1.1rem; color: var(--mut2); vertical-align: super; }
+    .w-desc { font-family: 'Literata', serif; font-size: 1.12rem; font-style: italic; color: var(--gold2); margin-bottom: 4px; }
+    .w-meta { font-size: 0.72rem; color: var(--mut2); line-height: 1.75; }
+    .w-wind { display: flex; align-items: center; gap: 4px; margin-top: 2px; font-size: 0.72rem; color: var(--mut2); }
+    .w-alert { background: rgba(192,90,58,0.12); border: 1px solid rgba(192,90,58,0.28); border-radius: 8px; padding: 7px 10px; font-size: 0.72rem; color: #e08060; margin-top: 9px; display: none; line-height: 1.55; }
+    .w-alert.on { display: block; }
+    .forecast { display: flex; gap: 7px; margin-top: 11px; border-top: 1px solid var(--bord); padding-top: 9px; }
+    .f-day { flex: 1; text-align: center; }
+    .f-day .fn { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .f-day .fi { font-size: 1.15rem; margin: 3px 0; }
+    .f-day .ft { font-family: 'Literata', serif; font-size: 1.05rem; color: var(--cream); }
+    .f-day .fw { font-size: 0.62rem; color: var(--muted); margin-top: 1px; }
+    /* slavic */
+    .sl-name { font-family: 'Literata', serif; font-size: 1.52rem; font-weight: 600; color: var(--gold2); margin-bottom: 6px; }
+    .sl-div { height: 1px; background: linear-gradient(90deg, transparent, var(--bord2), transparent); margin: 0 0 9px; }
+    .sl-text { font-size: 0.76rem; color: var(--mut2); line-height: 1.72; }
+    .sl-omen { margin-top: 9px; font-size: 0.72rem; font-style: italic; color: var(--teal2); border-left: 2px solid var(--teal); padding-left: 8px; line-height: 1.6; }
+    /* words */
+    .words { display: flex; flex-direction: column; gap: 7px; }
+    .word-row { background: var(--s2); border: 1px solid var(--bord); border-radius: 8px; padding: 8px 10px; }
+    .word-top { display: flex; align-items: baseline; gap: 7px; }
+    .word-pl { font-family: 'Literata', serif; font-size: 1.18rem; font-weight: 600; color: var(--gold3); }
+    .word-sep { font-size: 0.72rem; color: var(--muted); }
+    .word-ru { font-size: 0.76rem; color: var(--mut2); }
+    .word-ex { font-size: 0.68rem; color: var(--muted); font-style: italic; margin-top: 2px; line-height: 1.5; }
+    /* tasks */
+    .task-item { display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--s2); border:1px solid var(--bord); border-radius:8px; transition:border-color 0.2s,background 0.2s; touch-action:none; position:relative; }
+    .task-item.urgent { border-color:rgba(192,90,58,0.5); background:rgba(192,90,58,0.08); }
+    .task-item.done { opacity:0.4; }
+    .task-item.is-dragging { opacity:0.3; }
+    .drag-handle { color:var(--muted); font-size:1rem; cursor:grab; flex-shrink:0; padding:0 2px; line-height:1; touch-action:none; }
+    .urgent-dot { width:7px; height:7px; border-radius:50%; background:#e07050; display:none; flex-shrink:0; box-shadow:0 0 6px rgba(192,90,58,0.6); }
+    .task-item.urgent .urgent-dot { display:block; }
+    .task-cb { width:18px; height:18px; border-radius:5px; border:1.5px solid var(--bord2); background:none; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all 0.2s; cursor:pointer; }
+    .task-cb.checked { background:var(--teal); border-color:var(--teal); }
+    .task-cb.checked::after { content:"✓"; color:white; font-size:0.65rem; font-weight:700; }
+    .task-text { flex:1; font-size:0.82rem; line-height:1.45; color:var(--cream); }
+    .task-item.urgent .task-text { color:#f0c090; }
+    .task-item.done .task-text { text-decoration:line-through; color:var(--muted); }
+    .task-urgent-btn { background:none; border:none; font-size:0.9rem; cursor:pointer; padding:0; flex-shrink:0; opacity:0.4; transition:opacity 0.2s; }
+    .task-item.urgent .task-urgent-btn { opacity:1; }
+    .task-del { background:none; border:none; color:var(--muted); font-size:1.1rem; cursor:pointer; padding:0; line-height:1; flex-shrink:0; }
+    .task-del:active { color:var(--red); }
+    .task-input { width:100%; background:var(--s2); border:1px solid var(--bord2); border-radius:8px; color:var(--cream); font-family:"Raleway",sans-serif; font-size:0.82rem; padding:11px 14px; outline:none; resize:none; height:70px; line-height:1.5; transition:border-color 0.2s; margin-bottom:8px; }
+    .task-input::placeholder { color:var(--muted); }
+    .task-input:focus { border-color:var(--gold); }
+    .btn-add-task { width:100%; padding:11px 0; border-radius:8px; border:none; background:linear-gradient(135deg,var(--gold),var(--gold2)); color:#0d0f14; font-family:"Raleway",sans-serif; font-size:0.78rem; font-weight:700; cursor:pointer; margin-bottom:10px; }
+    .btn-add-task:active { opacity:0.8; }
+    .task-sub-hint { font-size:0.6rem; color:var(--muted); font-style:italic; text-align:center; margin-bottom:10px; }
+    .tasks-list { display:flex; flex-direction:column; gap:6px; }
+    .task-empty { text-align:center; padding:18px 0; font-size:0.72rem; color:var(--muted); font-style:italic; }
+    .task-bottom { display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px solid var(--bord); }
+    .task-count { font-size:0.65rem; color:var(--muted); }
+    .btn-clear-done { background:none; border:none; font-size:0.65rem; color:var(--muted); cursor:pointer; font-family:"Raleway",sans-serif; }
+    .btn-clear-done:active { color:var(--red); }
+    .drag-ghost { position:fixed; pointer-events:none; z-index:1000; background:var(--s1); border:1px solid var(--gold); border-radius:8px; padding:10px 14px; font-size:0.82rem; color:var(--cream); box-shadow:0 8px 24px rgba(0,0,0,0.5); opacity:0.95; transform:rotate(1.5deg); }
+    .skel { background: linear-gradient(90deg, var(--s2) 25%, var(--s3) 50%, var(--s2) 75%); background-size: 200% 100%; animation: shim 1.5s infinite; border-radius: 4px; }
+    @keyframes shim { to { background-position: -200% 0; } }
+  </style>
 </head>
 <body>
-
-<!-- MAIN PAGE -->
-<div class="page active" id="pageMain">
-
 <header>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-    <div class="header-title" style="margin-bottom:0">Отчёт о работе</div>
-    <div style="display:flex;gap:8px">
-      <button onclick="backupData()" style="background:#1e3a2e;border:none;color:#6ee7b7;font-size:11px;padding:6px 10px;border-radius:8px;cursor:pointer;font-family:Inter,sans-serif">💾 Бэкап</button>
-      <label style="background:#1e1e3a;border:none;color:#818cf8;font-size:11px;padding:6px 10px;border-radius:8px;cursor:pointer;font-family:Inter,sans-serif">
-        📂 Загрузить<input type="file" accept=".json" onchange="restoreData(event)" style="display:none">
-      </label>
-    </div>
+  <svg class="logo" viewBox="0 0 44 44" fill="none">
+    <circle cx="22" cy="22" r="20.5" stroke="#b8975a" stroke-width="0.9"/>
+    <circle cx="22" cy="22" r="15.5" stroke="#b8975a" stroke-width="0.5" opacity="0.35"/>
+    <circle cx="22" cy="22" r="10"   stroke="#d4af6e" stroke-width="0.6" opacity="0.6"/>
+    <line x1="22" y1="1.5"  x2="22" y2="6.5"   stroke="#b8975a" stroke-width="1" stroke-linecap="round"/>
+    <line x1="22" y1="37.5" x2="22" y2="42.5"  stroke="#b8975a" stroke-width="1" stroke-linecap="round"/>
+    <line x1="1.5"  y1="22" x2="6.5"  y2="22"  stroke="#b8975a" stroke-width="1" stroke-linecap="round"/>
+    <line x1="37.5" y1="22" x2="42.5" y2="22"  stroke="#b8975a" stroke-width="1" stroke-linecap="round"/>
+    <line x1="7.1"  y1="7.1"  x2="10.6" y2="10.6" stroke="#b8975a" stroke-width="0.9" stroke-linecap="round"/>
+    <line x1="33.4" y1="33.4" x2="36.9" y2="36.9" stroke="#b8975a" stroke-width="0.9" stroke-linecap="round"/>
+    <line x1="36.9" y1="7.1"  x2="33.4" y2="10.6" stroke="#b8975a" stroke-width="0.9" stroke-linecap="round"/>
+    <line x1="7.1"  y1="36.9" x2="10.6" y2="33.4" stroke="#b8975a" stroke-width="0.9" stroke-linecap="round"/>
+    <g stroke="#d4af6e" stroke-width="0.7" opacity="0.75">
+      <path d="M22 12 Q25 17 22 22 Q19 17 22 12Z" fill="none"/>
+      <path d="M22 32 Q19 27 22 22 Q25 27 22 32Z" fill="none"/>
+      <path d="M12 22 Q17 19 22 22 Q17 25 12 22Z" fill="none"/>
+      <path d="M32 22 Q27 25 22 22 Q27 19 32 22Z" fill="none"/>
+    </g>
+    <circle cx="22" cy="22" r="2.8" fill="#d4af6e" opacity="0.95"/>
+  </svg>
+  <div class="h-meta">
+    <div class="h-title">Навигатор дня</div>
+    <div class="h-date" id="hDate">…</div>
   </div>
-  <div class="month-selector">
-    <button class="month-btn" onclick="changeMonth(-1)">‹</button>
-    <div class="month-label" id="monthLabel"></div>
-    <button class="month-btn" onclick="changeMonth(1)">›</button>
-  </div>
+  <button class="refresh-btn" id="refreshBtn" onclick="loadAll()" title="Обновить">
+    <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M13.5 8A5.5 5.5 0 1 1 10 3.07" stroke-linecap="round"/>
+      <polyline points="10,1 10,4 13,4" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
 </header>
 
-<div class="totals-bar">
-  <div class="mob-total">
-    <div class="total-label">Мобильная</div>
-    <div class="total-val" id="totalMob">0</div>
+<div class="grid">
+  <!-- USD → PLN -->
+  <div class="card">
+    <div class="lbl">💵 USD → PLN</div>
+    <div class="rate-val" id="usdPln">—</div>
+    <div class="rate-badge" id="usdBadge">…</div>
+    <div class="updated"><div class="dot" id="dotUsd"></div><span id="updUsd">—</span></div>
+    <div class="progress"><div class="progress-bar" id="barUsd" style="width:100%"></div></div>
   </div>
-  <div class="total-card">
-    <div class="total-label">Итого сушилка</div>
-    <div class="total-row"><span class="total-name">Сушилка</span><span class="total-val" id="totalSush">0</span></div>
-    <div class="total-row"><span class="total-name">МБ суш</span><span class="total-val" id="totalMbSush">0</span></div>
-    <div class="total-row" style="margin-top:6px;border-top:1px solid #2a2a38;padding-top:6px"><span class="total-name">Сумма</span><span class="total-val" id="totalSushSum" style="color:#f9a8d4">0</span></div>
-  </div>
-  <div class="total-card">
-    <div class="total-label">Итого склад</div>
-    <div class="total-row"><span class="total-name">Склад</span><span class="total-val" id="totalSklad">0</span></div>
-    <div class="total-row"><span class="total-name">МБ склад</span><span class="total-val" id="totalMbSklad">0</span></div>
-    <div class="total-row" style="margin-top:6px;border-top:1px solid #2a2a38;padding-top:6px"><span class="total-name">Сумма</span><span class="total-val" id="totalSkladSum" style="color:#f9a8d4">0</span></div>
-  </div>
-</div>
 
-<div class="extra-totals">
-  <button class="extra-total-btn" onclick="openHistory('work')">
-    <div class="extra-total-lbl">Доп время</div>
-    <div class="extra-total-val" id="totalExtraWork">0 мин</div>
-  </button>
-  <button class="extra-total-btn travel" onclick="openHistory('travel')">
-    <div class="extra-total-lbl">Время в пути</div>
-    <div class="extra-total-val" id="totalExtraTravel">0 мин</div>
-  </button>
-</div>
-
-<div class="days-list" id="daysList"></div>
-</div>
-
-<!-- HISTORY PAGE -->
-<div class="page" id="pageHistory">
-  <div class="hist-header">
-    <button class="back-btn" onclick="openMain()">←</button>
-    <div class="hist-title" id="histTitle" style="color:var(--orange)">История</div>
+  <!-- PLN → UAH -->
+  <div class="card">
+    <div class="lbl">🇵🇱 PLN → UAH</div>
+    <div class="rate-val" id="plnUah">—</div>
+    <div class="rate-badge" id="uahBadge">…</div>
+    <div class="updated"><div class="dot" id="dotUah"></div><span id="updUah">—</span></div>
+    <div class="progress"><div class="progress-bar" id="barUah" style="width:100%"></div></div>
   </div>
-  <div class="hist-tabs">
-    <button class="hist-tab on" id="tabWork" onclick="switchTab('work')">⚒ Работа</button>
-    <button class="hist-tab" id="tabTravel" onclick="switchTab('travel')">🚗 В пути</button>
+
+  <!-- WEATHER -->
+  <div class="card">
+    <div class="lbl">🌤 Погода · <span id="wCity" style="color:var(--mut2)">определение…</span></div>
+    <div class="w-main">
+      <div class="w-temp" id="wTemp">—<sup>°</sup></div>
+      <div>
+        <div class="w-desc" id="wDesc">…</div>
+        <div class="w-meta">ощущается <span id="wFeels">—</span>° · влажн. <span id="wHum">—</span>%</div>
+        <div class="w-wind">💨 <span id="wWind">—</span> м/с <span id="wDir" style="color:var(--muted);margin-left:3px"></span></div>
+      </div>
+    </div>
+    <div class="w-alert" id="wAlert"></div>
+    <div class="forecast" id="forecast">
+      <div class="f-day"><div class="fn">…</div><div class="fi">—</div><div class="ft">—</div></div>
+      <div class="f-day"><div class="fn">…</div><div class="fi">—</div><div class="ft">—</div></div>
+      <div class="f-day"><div class="fn">…</div><div class="fi">—</div><div class="ft">—</div></div>
+    </div>
+    <div class="updated"><div class="dot" id="dotWx"></div><span id="updWx">—</span></div>
+    <div class="progress"><div class="progress-bar" id="barWx" style="width:100%"></div></div>
   </div>
-  <div class="hist-content" id="histContent"></div>
+
+  <!-- TASKS -->
+  <div class="card">
+    <div class="lbl">📋 Список задач</div>
+    <div class="hint" style="font-size:0.62rem;color:var(--muted);margin-bottom:6px;font-style:italic">Через запятую или каждое с новой строки</div>
+    <textarea class="task-input" id="taskInput" placeholder="хлеб, молоко, позвонить маме…"></textarea>
+    <button class="btn-add-task" onclick="addTasks()">+ Добавить</button>
+    <div class="task-sub-hint">⚑ важное · ☰ тяни для сортировки</div>
+    <div class="tasks-list" id="taskList"></div>
+    <div class="task-empty" id="taskEmpty">Список пуст</div>
+    <div class="task-bottom">
+      <span class="task-count" id="taskCount">0 задач</span>
+      <button class="btn-clear-done" onclick="clearDone()">Убрать выполненные</button>
+    </div>
+  </div>
+
+  <!-- SLAVIC CALENDAR -->
+  <div class="card">
+    <div class="lbl">🌿 Славянский календарь</div>
+    <div class="sl-name" id="slName">…</div>
+    <div class="sl-div"></div>
+    <div class="sl-text" id="slText">…</div>
+    <div class="sl-omen" id="slOmen">…</div>
+  </div>
+
+  <!-- WORDS -->
+  <div class="card">
+    <div class="lbl">🇵🇱 3 слова дня · польский</div>
+    <div class="words" id="words">
+      <div class="skel" style="height:44px"></div>
+      <div class="skel" style="height:44px;opacity:.65"></div>
+      <div class="skel" style="height:44px;opacity:.35"></div>
+    </div>
+  </div>
 </div>
 
 <script>
-const MONTHS   = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-const WEEKDAYS = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
-const COLS     = ['mob','sush','sklad','mbSush','mbSklad'];
+const $ = id => document.getElementById(id);
+const INTERVAL_CUR = 60 * 60 * 1000;  // 1 час
+const INTERVAL_WX  = 30 * 60 * 1000;  // 30 минут
+let lastCur = null, lastWx = null;
 
-let now = new Date(), year = now.getFullYear(), month = now.getMonth();
-let data = {}, curHistTab = 'work';
-
-function storageKey()   { return `report_${year}_${month}`; }
-function workLogKey()   { return `worklog_${year}_${month}`; }
-function travelLogKey() { return `travellog_${year}_${month}`; }
-
-function load()  { try { data = JSON.parse(localStorage.getItem(storageKey()) || '{}'); } catch(e) { data = {}; } }
-function save()  { localStorage.setItem(storageKey(), JSON.stringify(data)); }
-
-function loadWorkLog()       { try { return JSON.parse(localStorage.getItem(workLogKey())   || '[]'); } catch(e) { return []; } }
-function saveWorkLog(log)    { localStorage.setItem(workLogKey(),   JSON.stringify(log)); }
-function loadTravelLog()     { try { return JSON.parse(localStorage.getItem(travelLogKey()) || '[]'); } catch(e) { return []; } }
-function saveTravelLog(log)  { localStorage.setItem(travelLogKey(), JSON.stringify(log)); }
-
-function toHM(mins) {
-  if (!mins) return '0 мин';
-  if (mins < 60) return `${mins} мин`;
-  const h = Math.floor(mins/60), m = mins%60;
-  return m > 0 ? `${h} ч ${m} мин` : `${h} ч`;
+// ── header ────────────────────────────────────
+function setHeader() {
+  const n = new Date();
+  const days   = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+  const months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  $('hDate').textContent = `${days[n.getDay()]}, ${n.getDate()} ${months[n.getMonth()]} ${n.getFullYear()}`;
 }
 
-function getWorkdays(y, m) {
-  const days = [], d = new Date(y, m, 1);
-  while (d.getMonth() === m) {
-    if (d.getDay() !== 0 && d.getDay() !== 6) days.push(new Date(d));
-    d.setDate(d.getDate()+1);
+// ── timestamps ────────────────────────────────
+function timeAgo(ts) {
+  if (!ts) return '—';
+  const m = Math.floor((Date.now() - ts) / 60000);
+  if (m < 1) return 'только что';
+  if (m < 60) return `${m} мин назад`;
+  return `${Math.floor(m/60)} ч назад`;
+}
+function refreshTimestamps() {
+  $('updUsd').textContent = timeAgo(lastCur);
+  $('updUah').textContent = timeAgo(lastCur);
+  $('updWx').textContent  = timeAgo(lastWx);
+}
+function setDot(id, fresh) {
+  const d = $(id);
+  if (fresh) d.classList.remove('stale');
+  else d.classList.add('stale');
+}
+function animateBar(id, ms) {
+  const b = $(id);
+  b.style.transition = 'none';
+  b.style.width = '100%';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    b.style.transition = `width ${ms/1000}s linear`;
+    b.style.width = '0%';
+  }));
+}
+
+// ── weather helpers ───────────────────────────
+function windDir(d) { return ['С','С-В','В','Ю-В','Ю','Ю-З','З','С-З'][Math.round(d/45)%8]; }
+function wIcon(c) {
+  if (c===0) return '☀️'; if (c<=2) return '🌤️'; if (c===3) return '☁️';
+  if (c<=48) return '🌫️'; if (c<=55) return '🌦️'; if (c<=67) return '🌧️';
+  if (c<=77) return '❄️'; if (c<=82) return '🌧️'; return '⛈️';
+}
+function wDesc(c) {
+  if (c===0) return 'ясно'; if (c<=2) return 'переменная облачность'; if (c===3) return 'пасмурно';
+  if (c<=48) return 'туман'; if (c<=55) return 'морось'; if (c<=67) return 'дождь';
+  if (c<=77) return 'снег'; if (c<=82) return 'ливень'; return 'гроза';
+}
+
+// ── currency ──────────────────────────────────
+async function loadCurrency() {
+  // USD → PLN
+  try {
+    const f = await (await fetch('https://open.er-api.com/v6/latest/USD')).json();
+    $('usdPln').textContent = f.rates.PLN.toFixed(2);
+    $('usdBadge').textContent = 'актуальный курс';
+    setDot('dotUsd', true);
+  } catch {
+    $('usdPln').textContent = '—';
+    $('usdBadge').textContent = 'ошибка сети';
+    setDot('dotUsd', false);
   }
-  return days;
+
+  // PLN → UAH via НБУ
+  try {
+    const nbu = await (await fetch('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=PLN&json')).json();
+    const rate = nbu[0]?.rate;
+    $('plnUah').textContent = rate ? rate.toFixed(2) : '—';
+    $('uahBadge').textContent = rate ? 'актуальный курс' : 'нет данных';
+    setDot('dotUah', !!rate);
+  } catch {
+    $('plnUah').textContent = '—';
+    $('uahBadge').textContent = 'ошибка сети';
+    setDot('dotUah', false);
+  }
+
+  lastCur = Date.now();
+  animateBar('barUsd', INTERVAL_CUR);
+  animateBar('barUah', INTERVAL_CUR);
 }
 
-function formatDate(d) {
-  return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.`;
-}
+// ── weather ───────────────────────────────────
+async function loadWeather() {
+  try {
+    const lat = 52.2297, lon = 21.0122;
+    $('wCity').textContent = 'Варшава';
 
-function hasData(dateStr) {
-  const r = data[dateStr];
-  return r && COLS.some(c => r[c] && r[c] !== '');
-}
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`
+      + `&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,wind_direction_10m`
+      + `&daily=weather_code,temperature_2m_max,temperature_2m_min,wind_speed_10m_max`
+      + `&wind_speed_unit=ms&timezone=auto&forecast_days=4`;
+    const wd = await (await fetch(url)).json();
+    const c = wd.current;
 
-function getPreview(dateStr) {
-  const r  = data[dateStr] || {};
-  const wl = loadWorkLog().filter(x => x.date === dateStr);
-  const tl = loadTravelLog().filter(x => x.date === dateStr);
-  let chips = '';
-  if (r.mob) chips += `<span class="preview-chip mob">М:${r.mob}</span>`;
-  if (r.sush||r.mbSush) chips += `<span class="preview-chip">С:${(+r.sush||0)+(+r.mbSush||0)}</span>`;
-  if (r.sklad||r.mbSklad) chips += `<span class="preview-chip">Скл:${(+r.sklad||0)+(+r.mbSklad||0)}</span>`;
-  const wm = wl.reduce((s,x)=>s+x.mins,0);
-  const tm = tl.reduce((s,x)=>s+x.mins,0);
-  if (wm) chips += `<span class="preview-chip extra">+${toHM(wm)}</span>`;
-  if (tm) chips += `<span class="preview-chip travel">🚗${toHM(tm)}</span>`;
-  return chips;
-}
+    $('wTemp').innerHTML   = `${Math.round(c.temperature_2m)}<sup>°</sup>`;
+    $('wDesc').textContent = wDesc(c.weather_code);
+    $('wFeels').textContent = Math.round(c.apparent_temperature);
+    $('wHum').textContent   = c.relative_humidity_2m;
+    $('wWind').textContent  = c.wind_speed_10m.toFixed(1);
+    $('wDir').textContent   = windDir(c.wind_direction_10m);
 
-function workItemHtml(x, dateStr) {
-  return `<div class="work-item">
-    <div class="work-item-dot"></div>
-    <div class="work-item-text">${x.desc}</div>
-    <div class="work-item-min">${x.mins} мин</div>
-    <button class="work-item-del" onclick="delWork('${dateStr}',${x.id})">×</button>
-  </div>`;
-}
-
-function render() {
-  load();
-  document.getElementById('monthLabel').textContent = `${MONTHS[month]} ${year}`;
-  const days = getWorkdays(year, month);
-  const list = document.getElementById('daysList');
-  list.innerHTML = '';
-
-  days.forEach(d => {
-    const dateStr = formatDate(d);
-    const wd = WEEKDAYS[d.getDay()];
-    const r  = data[dateStr] || {};
-    const wl = loadWorkLog().filter(x => x.date === dateStr);
-    const tl = loadTravelLog().filter(x => x.date === dateStr);
-    const wm = wl.reduce((s,x)=>s+x.mins,0);
-    const tm = tl.reduce((s,x)=>s+x.mins,0);
-
-    const card = document.createElement('div');
-    card.className = 'day-card' + (hasData(dateStr) ? ' has-data' : '');
-    card.dataset.date = dateStr;
-
-    card.innerHTML = `
-      <div class="day-header" onclick="toggle(this)">
-        <div>
-          <div class="day-date">${dateStr}</div>
-          <div class="day-weekday">${wd}</div>
-        </div>
-        <div class="day-preview">${getPreview(dateStr)}</div>
-        <div class="chevron">▼</div>
-      </div>
-      <div class="day-body">
-        <div>
-          <div class="section-label">Мобильная</div>
-          <div class="fields-grid">
-            <div class="field mob">
-              <label>Мобильная</label>
-              <input type="text" inputmode="decimal" class="formula-input" value="${r.mob||''}" placeholder="0"
-                onblur="evalField(this,'${dateStr}','mob')" onfocus="focusField(this,'${dateStr}','mob')">
-            </div>
-          </div>
-        </div>
-        <div class="divider"></div>
-        <div>
-          <div class="section-label">Стационарная</div>
-          <div class="fields-grid">
-            <div class="field"><label>Сушилка</label>
-              <input type="text" inputmode="decimal" class="formula-input" value="${r.sush||''}" placeholder="0"
-                onblur="evalField(this,'${dateStr}','sush')" onfocus="focusField(this,'${dateStr}','sush')"></div>
-            <div class="field"><label>Склад</label>
-              <input type="text" inputmode="decimal" class="formula-input" value="${r.sklad||''}" placeholder="0"
-                onblur="evalField(this,'${dateStr}','sklad')" onfocus="focusField(this,'${dateStr}','sklad')"></div>
-            <div class="field"><label>МБ суш</label>
-              <input type="text" inputmode="decimal" class="formula-input" value="${r.mbSush||''}" placeholder="0"
-                onblur="evalField(this,'${dateStr}','mbSush')" onfocus="focusField(this,'${dateStr}','mbSush')"></div>
-            <div class="field"><label>МБ склад</label>
-              <input type="text" inputmode="decimal" class="formula-input" value="${r.mbSklad||''}" placeholder="0"
-                onblur="evalField(this,'${dateStr}','mbSklad')" onfocus="focusField(this,'${dateStr}','mbSklad')"></div>
-          </div>
-        </div>
-        <div class="divider"></div>
-        <div>
-          <div class="section-label">Доп время · вид работ</div>
-          <div class="work-row">
-            <input class="work-desc" type="text" placeholder="Что сделано…" id="wd_${dateStr}"/>
-            <input class="work-mins" type="number" min="1" placeholder="мин" id="wm_${dateStr}"/>
-            <button class="add-work-btn" onclick="addWork('${dateStr}')">+</button>
-          </div>
-          <div id="wlist_${dateStr}" style="margin-top:6px;display:flex;flex-direction:column;gap:4px">
-            ${wl.map(x => workItemHtml(x, dateStr)).join('')}
-          </div>
-        </div>
-        <div class="divider"></div>
-        <div>
-          <div class="section-label">Время в пути · минуты</div>
-          <div class="travel-row">
-            <input class="travel-mins" type="number" min="1" placeholder="минуты…" id="tm_${dateStr}"/>
-            <button class="add-travel-btn" onclick="addTravel('${dateStr}')">+</button>
-          </div>
-        </div>
-        <div class="day-time-totals">
-          <div class="day-time-chip" id="wchip_${dateStr}">Доп время<span>${toHM(wm)}</span></div>
-          <div class="day-time-chip travel" id="tchip_${dateStr}">В пути<span>${toHM(tm)}</span></div>
-        </div>
-        <button class="clear-btn" onclick="clearDay('${dateStr}')">Очистить день</button>
-      </div>`;
-
-    list.appendChild(card);
-  });
-
-  updateTotals();
-}
-
-function toggle(header) { header.parentElement.classList.toggle('open'); }
-
-function addWork(dateStr) {
-  const desc = document.getElementById('wd_'+dateStr).value.trim();
-  const mins = parseInt(document.getElementById('wm_'+dateStr).value);
-  if (!desc || !mins) return;
-  const log = loadWorkLog();
-  log.push({ id: Date.now(), date: dateStr, desc, mins });
-  saveWorkLog(log);
-  document.getElementById('wd_'+dateStr).value = '';
-  document.getElementById('wm_'+dateStr).value = '';
-  refreshDayExtras(dateStr);
-  updateTotals();
-}
-
-function delWork(dateStr, id) {
-  saveWorkLog(loadWorkLog().filter(x => x.id !== id));
-  refreshDayExtras(dateStr);
-  updateTotals();
-}
-
-function addTravel(dateStr) {
-  const mins = parseInt(document.getElementById('tm_'+dateStr).value);
-  if (!mins) return;
-  const log = loadTravelLog();
-  log.push({ id: Date.now(), date: dateStr, mins });
-  saveTravelLog(log);
-  document.getElementById('tm_'+dateStr).value = '';
-  refreshDayExtras(dateStr);
-  updateTotals();
-}
-
-function refreshDayExtras(dateStr) {
-  const wl = loadWorkLog().filter(x => x.date === dateStr);
-  const tl = loadTravelLog().filter(x => x.date === dateStr);
-  const wm = wl.reduce((s,x)=>s+x.mins,0);
-  const tm = tl.reduce((s,x)=>s+x.mins,0);
-  const wlist = document.getElementById('wlist_'+dateStr);
-  if (wlist) wlist.innerHTML = wl.map(x => workItemHtml(x, dateStr)).join('');
-  const wchip = document.getElementById('wchip_'+dateStr);
-  if (wchip) wchip.innerHTML = `Доп время<span>${toHM(wm)}</span>`;
-  const tchip = document.getElementById('tchip_'+dateStr);
-  if (tchip) tchip.innerHTML = `В пути<span>${toHM(tm)}</span>`;
-  const card = document.querySelector(`.day-card[data-date="${dateStr}"]`);
-  if (card) { const p = card.querySelector('.day-preview'); if (p) p.innerHTML = getPreview(dateStr); }
-}
-
-function setVal(dateStr, col, val, formula) {
-  if (!data[dateStr]) data[dateStr] = {};
-  data[dateStr][col] = val;
-  if (formula !== undefined) data[dateStr][col+'_formula'] = formula;
-  save(); updateTotals(); updateCard(dateStr);
-}
-
-function clearDay(dateStr) {
-  delete data[dateStr]; save();
-  saveWorkLog(loadWorkLog().filter(x => x.date !== dateStr));
-  saveTravelLog(loadTravelLog().filter(x => x.date !== dateStr));
-  render();
-}
-
-function updateCard(dateStr) {
-  document.querySelectorAll('.day-card').forEach(card => {
-    if (card.querySelector('.day-date')?.textContent === dateStr) {
-      card.classList.toggle('has-data', hasData(dateStr));
-      const p = card.querySelector('.day-preview');
-      if (p) p.innerHTML = getPreview(dateStr);
+    const diff = wd.daily.temperature_2m_max[1] - wd.daily.temperature_2m_max[0];
+    const al = $('wAlert');
+    al.classList.remove('on');
+    if (Math.abs(diff) >= 8) {
+      al.textContent = diff > 0 ? `⚠️ Завтра резко теплее: +${diff.toFixed(0)}°` : `⚠️ Завтра резкое похолодание: ${diff.toFixed(0)}°`;
+      al.classList.add('on');
     }
-  });
-}
 
-function updateTotals() {
-  let mob=0,sush=0,sklad=0,mbSush=0,mbSklad=0;
-  Object.values(data).forEach(r => {
-    mob+=+r.mob||0; sush+=+r.sush||0; sklad+=+r.sklad||0; mbSush+=+r.mbSush||0; mbSklad+=+r.mbSklad||0;
-  });
-  document.getElementById('totalMob').textContent     = mob;
-  document.getElementById('totalSush').textContent    = sush;
-  document.getElementById('totalSklad').textContent   = sklad;
-  document.getElementById('totalMbSush').textContent  = mbSush;
-  document.getElementById('totalMbSklad').textContent = mbSklad;
-  document.getElementById('totalSushSum').textContent  = sush+mbSush;
-  document.getElementById('totalSkladSum').textContent = sklad+mbSklad;
-  const wm = loadWorkLog().reduce((s,x)=>s+x.mins,0);
-  const tm = loadTravelLog().reduce((s,x)=>s+x.mins,0);
-  document.getElementById('totalExtraWork').textContent   = toHM(wm);
-  document.getElementById('totalExtraTravel').textContent = toHM(tm);
-}
+    const dn = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+    $('forecast').innerHTML = [1,2,3].map(i => {
+      const dt = new Date(wd.daily.time[i]);
+      return `<div class="f-day">
+        <div class="fn">${dn[dt.getDay()]}</div>
+        <div class="fi">${wIcon(wd.daily.weather_code[i])}</div>
+        <div class="ft">${Math.round(wd.daily.temperature_2m_max[i])}° / <span style="color:var(--muted)">${Math.round(wd.daily.temperature_2m_min[i])}°</span></div>
+        <div class="fw">💨 ${wd.daily.wind_speed_10m_max[i].toFixed(0)} м/с</div>
+      </div>`;
+    }).join('');
 
-function changeMonth(dir) {
-  month += dir;
-  if (month>11){month=0;year++;} if(month<0){month=11;year--;}
-  render();
-}
+    lastWx = Date.now();
+    setDot('dotWx', true);
+    animateBar('barWx', INTERVAL_WX);
 
-function evalField(input, dateStr, col) {
-  let val = input.value.trim();
-  if (val==='') { setVal(dateStr,col,'',''); return; }
-  let formula=val, result=val;
-  if (/^[\d\s\+\-\*\/\.]+$/.test(val) && /[\+\-\*\/]/.test(val)) {
-    try { const r=Function('"use strict";return('+val+')')(); if(isFinite(r)) result=String(Math.round(r*100)/100); } catch(e){}
-  } else { formula=''; }
-  input.value = result;
-  setVal(dateStr, col, result, formula);
-}
-
-function focusField(input, dateStr, col) {
-  const r = data[dateStr];
-  if (r && r[col+'_formula']) input.value = r[col+'_formula'];
-  input.select();
-}
-
-function openHistory(tab) {
-  curHistTab = tab;
-  document.getElementById('pageMain').classList.remove('active');
-  document.getElementById('pageHistory').classList.add('active');
-  renderHistory();
-}
-
-function openMain() {
-  document.getElementById('pageHistory').classList.remove('active');
-  document.getElementById('pageMain').classList.add('active');
-}
-
-function switchTab(tab) {
-  curHistTab = tab;
-  document.getElementById('tabWork').className   = 'hist-tab'+(tab==='work'?' on':'');
-  document.getElementById('tabTravel').className = 'hist-tab'+(tab==='travel'?' on travel':'');
-  renderHistory();
-}
-
-function renderHistory() {
-  const isTravel = curHistTab==='travel';
-  const log = isTravel ? loadTravelLog() : loadWorkLog();
-  document.getElementById('histTitle').textContent = isTravel ? 'История поездок' : 'История работ';
-  document.getElementById('histTitle').style.color = isTravel ? 'var(--accent2)' : 'var(--orange)';
-  const content = document.getElementById('histContent');
-  if (!log.length) { content.innerHTML='<div class="hist-empty">Записей пока нет</div>'; return; }
-  const byDate={};
-  log.forEach(x=>{ if(!byDate[x.date]) byDate[x.date]=[]; byDate[x.date].push(x); });
-  content.innerHTML = Object.keys(byDate).sort().reverse().map(date => {
-    const items=byDate[date], total=items.reduce((s,x)=>s+x.mins,0);
-    return `<div class="hist-day">
-      <div class="hist-day-hdr">
-        <div class="hist-day-date">${date}</div>
-        <div class="hist-day-total">итого: <b class="${isTravel?'travel':''}">${toHM(total)}</b></div>
-      </div>
-      ${items.map(x=>`<div class="hist-item">
-        <div class="hist-dot ${isTravel?'travel':''}"></div>
-        <div class="hist-text">${isTravel?toHM(x.mins):x.desc}</div>
-        <div class="hist-min ${isTravel?'travel':''}">${x.mins} мин</div>
-      </div>`).join('')}
-    </div>`;
-  }).join('') + `<button class="export-btn" onclick="exportHistory()">📋 Скопировать как текст</button>`;
-}
-
-function exportHistory() {
-  const isTravel = curHistTab==='travel';
-  const log = isTravel ? loadTravelLog() : loadWorkLog();
-  if (!log.length) { alert('Нет данных'); return; }
-  const byDate={};
-  log.forEach(x=>{ if(!byDate[x.date]) byDate[x.date]=[]; byDate[x.date].push(x); });
-  const text = Object.keys(byDate).sort().reverse().map(date => {
-    const items=byDate[date], total=items.reduce((s,x)=>s+x.mins,0);
-    return `=== ${date} (${toHM(total)}) ===\n`+items.map(x=>isTravel?`  • ${x.mins} мин`:`  • ${x.desc} — ${x.mins} мин`).join('\n');
-  }).join('\n\n');
-  navigator.clipboard.writeText((isTravel?'В пути':'Работа')+'\n\n'+text)
-    .then(()=>alert('Скопировано!')).catch(()=>alert(text));
-}
-
-function backupData() {
-  const allData={};
-  for(let i=0;i<localStorage.length;i++){
-    const key=localStorage.key(i);
-    if(key.startsWith('report_')||key.startsWith('worklog_')||key.startsWith('travellog_'))
-      allData[key]=JSON.parse(localStorage.getItem(key));
+  } catch {
+    $('wTemp').innerHTML   = '—';
+    $('wDesc').textContent = 'ошибка загрузки';
+    $('wCity').textContent = '—';
+    setDot('dotWx', false);
   }
-  const blob=new Blob([JSON.stringify(allData,null,2)],{type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  const d=new Date();
-  a.download=`otchet_backup_${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}.json`;
-  a.click();
 }
 
-function restoreData(event) {
-  const file=event.target.files[0]; if(!file) return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    try {
-      const allData=JSON.parse(e.target.result);
-      Object.keys(allData).forEach(key=>localStorage.setItem(key,JSON.stringify(allData[key])));
-      render(); alert('Данные восстановлены!');
-    } catch(err){ alert('Ошибка при загрузке файла'); }
-  };
-  reader.readAsText(file);
+// ── slavic calendar ───────────────────────────
+const SLAV = [
+  {m:1,d:1,  n:'Щедрый вечер / Новый год', t:'День обновления. Принято обходить дома с колядками, желать добра соседям. Первый гость в доме определяет настрой всего года.', o:'Ветер с юга — год тёплый и урожайный.'},
+  {m:1,d:6,  n:'Велесов день (Водокрещение)', t:'Освящение воды. Принято купаться в проруби и убирать дом. Вода набирает целебную силу на весь год.', o:'Яркие звёзды — орехов будет вдоволь.'},
+  {m:1,d:13, n:'Старый Новый год / Щедрая кутья', t:'Щедрование по домам. Хозяевам несут достаток, взамен получают угощение. Вечер песен и радости.', o:'Туман — урожай будет добрым.'},
+  {m:1,d:19, n:'День Перуна-Зимнего', t:'День защиты от стихий. Принято освящать инструменты и оружие, просить защиты для дома.', o:'Трескучий мороз — лето будет жарким.'},
+  {m:1,d:24, n:'День Велеса', t:'Велес — бог скота и достатка. Принято хорошо кормить животных, благодарить за еду и тепло.', o:'Снежные заносы — к большому хлебу.'},
+  {m:2,d:2,  n:'Громница', t:'Праздник огня и первых признаков весны. Зажигают свечи, обходят дом с огнём для защиты.', o:'Если выглянуло солнце — весна скоро.'},
+  {m:2,d:11, n:'День Велеса-Зимнего', t:'Последний зимний Велесов день. Принято печь хлеб и делиться с соседями — символ достатка.', o:'Метель — ещё семь недель зимы.'},
+  {m:2,d:28, n:'Проводы зимы', t:'Принято прощаться с холодами, сжигать чучело зимы и готовиться к весне.', o:'Оттепель в конце февраля — ранняя весна.'},
+  {m:3,d:1,  n:'Навий день / Поминовение предков', t:'День памяти. Принято убирать могилы, оставлять угощение духам предков, зажигать свечи.', o:'Тепло в начале марта — раннее лето.'},
+  {m:3,d:14, n:'День Ярилы (первые лучи)', t:'Ярило — бог молодого солнца. Принято выходить навстречу солнцу, сеять первые семена.', o:'Журавли летят на север — весна тёплая.'},
+  {m:3,d:20, n:'Весеннее Равноденствие — Масленица', t:'День и ночь равны. Принято печь блины, жечь костры, водить хороводы. Весна побеждает зиму.', o:'Ясное равноденствие — год счастливый.'},
+  {m:3,d:25, n:'День Лады', t:'Лада — богиня красоты и любви. Принято плести венки, дарить цветы любимым.', o:'Первые цветы расцвели — к тёплому апрелю.'},
+  {m:4,d:1,  n:'День Лели', t:'Леля — богиня весны и молодости. Принято водить хороводы, обновлять дом после зимы.', o:'Дождь первого апреля — апрель тёплый.'},
+  {m:4,d:7,  n:'Благовещение', t:'Принято отпускать птиц на волю, не браться за тяжёлую работу. День добрых вестей.', o:'Прилетели ласточки — заморозков больше не будет.'},
+  {m:4,d:22, n:'День Земли', t:'Принято касаться голыми руками земли, благодарить за будущий урожай. Нельзя обижать природу.', o:'Сухая земля — урожай будет добрым.'},
+  {m:4,d:30, n:'Радуница — весеннее поминовение', t:'Поминальный день. Посещают могилы предков, несут весенние цветы, рассказывают детям о роде.', o:'Тёплая ночь — лето без засухи.'},
+  {m:5,d:1,  n:'Живин день', t:'Жива — богиня живой природы. Принято впервые купаться в реке, собирать первые травы.', o:'Тёплый первый май — год урожайный.'},
+  {m:5,d:6,  n:'День Дажьбога', t:'Дажьбог — бог солнца. Принято благодарить солнце, выносить еду на открытое место.', o:'Большая роса — к доброму льну.'},
+  {m:5,d:22, n:'Ярилин день', t:'Ярило в полной силе. День любви и сватовства. Плетут венки и бросают в воду.', o:'Венок не потонул — год счастливый.'},
+  {m:6,d:21, n:'Летнее Солнцестояние — Купала', t:'Величайший праздник! Костры, прыжки через огонь, поиск папоротника, гадания, купание. Ночь чудес.', o:'Яркие звёзды на Купалу — год счастливый и богатый.'},
+  {m:6,d:23, n:'День Перуна — Гроза', t:'Перун — повелитель грома. Не прячутся от дождя — он очищает. Нельзя ссориться.', o:'Гроза на праздник — урожай обильный.'},
+  {m:7,d:12, n:'День Перуна', t:'Принято не работать в поле — может ударить гроза. Освящают орудия труда. День силы.', o:'Гром в этот день — рожь уродится.'},
+  {m:7,d:28, n:'День Сварога', t:'Сварог — небесный кузнец. Принято чинить инструменты и готовиться к жатве.', o:'Тёплая ночь — жатва добрая.'},
+  {m:8,d:1,  n:'Первый Спас — Медовый', t:'День сбора мёда. Пасечники освящают мёд. Принято пробовать первый мёд с хлебом.', o:'Активные пчёлы — зима мягкая.'},
+  {m:8,d:19, n:'Яблочный Спас', t:'Несут яблоки на освящение. До этого дня яблоки не едят. Угощают детей и сирот.', o:'Сухой день — осень тёплая.'},
+  {m:8,d:29, n:'Ореховый Спас', t:'Сбор орехов. Принято сушить орехи и зерно на зиму. Завершение уборки урожая.', o:'Орехов много — зима суровая.'},
+  {m:9,d:14, n:'Семин день — Бабье лето', t:'Начало Бабьего лета. Собирают последние травы, сушат коренья. Женщины начинают прясть.', o:'Паутина летает — Бабье лето долгое.'},
+  {m:9,d:21, n:'Осеннее Равноденствие', t:'День равен ночи. Благодарят землю за урожай, сохраняют семена. Осень вступает в права.', o:'Ясное равноденствие — осень сухая.'},
+  {m:10,d:1, n:'День Покрова', t:'Земля "укрывается" на зиму. Заканчивают полевые работы, утепляют дом. Первый снег — добрый знак.', o:'Журавли улетели до Покрова — зима ранняя.'},
+  {m:10,d:14,n:'Покров — День Дажьбога', t:'День защиты и покровительства. Помогают одиноким людям. Девушки гадают на суженого.', o:'Снег на Покров — зима снежная.'},
+  {m:10,d:31,n:'День Марены', t:'Марена — богиня зимы. Поминальный день. Зажигают свечи за предков, не гуляют ночью.', o:'Воет ветер — зима ранняя и суровая.'},
+  {m:11,d:8, n:'День Сварога-Осеннего', t:'Сварог закрывает небо на зиму. Проверяют запасы, чинят крышу, утепляют хлев.', o:'Гуси летят низко — зима холодная.'},
+  {m:11,d:24,n:'День Морены', t:'Морена — зима вступает. Надевают зимнюю одежду, варят первый зимний чай из шиповника.', o:'Яркие звёзды — мороз ударит скоро.'},
+  {m:12,d:21,n:'Зимнее Солнцестояние — Коляда', t:'Самая долгая ночь, рождение нового солнца. Колядки, костёр всю ночь, гуляния до рассвета.', o:'Много звёзд на Коляду — год урожайный.'},
+  {m:12,d:25,n:'День Коляды — Рождество солнца', t:'Солнце родилось! Колядуют, носят звезду, варят кутью и взвар. 12 блюд — 12 месяцев.', o:'Снег идёт — год счастливый.'},
+  {m:12,d:31,n:'Щедрый вечер / Проводы года', t:'Проводы старого года. Убирают дом, прощают обиды, умываются чистой водой.', o:'Ясное небо — год придёт добрый.'},
+];
+function loadSlavic() {
+  const n = new Date(), m = n.getMonth()+1, d = n.getDate();
+  const today = m*100+d;
+  // exact match today
+  let e = SLAV.find(x => x.m===m && x.d===d);
+  if (e) {
+    $('slName').textContent = '🎉 ' + e.n;
+    $('slText').textContent = e.t;
+    $('slOmen').textContent = '🌿 ' + e.o;
+    return;
+  }
+  // find next upcoming
+  let next = SLAV.find(x => x.m*100+x.d > today);
+  if (!next) next = SLAV[0]; // wrap to Jan 1
+  // days until next
+  const nextDate = new Date(n.getFullYear(), next.m-1, next.d);
+  if (nextDate < n) nextDate.setFullYear(n.getFullYear()+1);
+  const diff = Math.ceil((nextDate - n) / 86400000);
+  $('slName').textContent = next.n;
+  $('slText').textContent = next.t;
+  $('slOmen').textContent = `📅 Через ${diff} дн. · 🌿 ${next.o}`;
 }
 
-render();
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
+// ── polish words ──────────────────────────────
+const WORDS = [
+  {pl:'jednak',         ru:'однако / тем не менее',  ex:'Jednak nie mogłem tego zrobić. — Однако я не смог этого сделать.'},
+  {pl:'mimo że',        ru:'несмотря на то что',      ex:'Mimo że padało, wyszedłem. — Несмотря на дождь, я вышел.'},
+  {pl:'ponadto',        ru:'кроме того / помимо',     ex:'Ponadto mamy inne opcje. — Кроме того, у нас есть другие варианты.'},
+  {pl:'zatem',          ru:'итак / следовательно',    ex:'Zatem co robimy? — Итак, что мы делаем?'},
+  {pl:'natomiast',      ru:'тогда как / а вот',       ex:'On pracuje, natomiast ona studiuje. — Он работает, а она учится.'},
+  {pl:'właściwie',      ru:'собственно / в сущности', ex:'Właściwie to dobry pomysł. — Собственно, это хорошая идея.'},
+  {pl:'zwłaszcza',      ru:'особенно / в особенности',ex:'Lubię owoce, zwłaszcza jabłka. — Люблю фрукты, особенно яблоки.'},
+  {pl:'wymagać',        ru:'требовать',               ex:'Ta praca wymaga doświadczenia. — Эта работа требует опыта.'},
+  {pl:'osiągnąć',       ru:'достичь / добиться',      ex:'Chcę osiągnąć swój cel. — Я хочу достичь своей цели.'},
+  {pl:'zrezygnować',    ru:'отказаться / уйти',       ex:'Zrezygnował z pracy. — Он ушёл с работы.'},
+  {pl:'przekonać',      ru:'убедить',                 ex:'Udało mi się go przekonać. — Мне удалось его убедить.'},
+  {pl:'przyznać',       ru:'признать / согласиться',  ex:'Muszę przyznać, że miałeś rację. — Должен признать, ты был прав.'},
+  {pl:'wynikać',        ru:'следовать / вытекать',    ex:'Z tego wynika, że mam rację. — Из этого следует, что я прав.'},
+  {pl:'dotyczyć',       ru:'касаться / относиться',   ex:'To dotyczy wszystkich. — Это касается всех.'},
+  {pl:'zapewnić',       ru:'обеспечить / заверить',   ex:'Zapewniam cię, że to prawda. — Заверяю тебя, это правда.'},
+  {pl:'skorzystać',     ru:'воспользоваться',         ex:'Skorzystaj z okazji. — Воспользуйся возможностью.'},
+  {pl:'przedsiębiorstwo',ru:'предприятие / фирма',    ex:'To duże przedsiębiorstwo. — Это крупное предприятие.'},
+  {pl:'zobowiązanie',   ru:'обязательство',           ex:'Mam zobowiązania finansowe. — У меня финансовые обязательства.'},
+  {pl:'świadczenie',    ru:'пособие / услуга',        ex:'Świadczenie socjalne. — Социальное пособие.'},
+  {pl:'wynajmować',     ru:'арендовать / снимать',    ex:'Wynajmuję mieszkanie w centrum. — Снимаю квартиру в центре.'},
+  {pl:'rozwiązanie',    ru:'решение / выход',         ex:'Nie ma idealnego rozwiązania. — Нет идеального решения.'},
+  {pl:'okoliczność',    ru:'обстоятельство',          ex:'W tych okolicznościach to trudne. — В этих обстоятельствах это сложно.'},
+  {pl:'nabyć',          ru:'приобрести',              ex:'Nabyłem nowe umiejętności. — Я приобрёл новые навыки.'},
+  {pl:'podejście',      ru:'подход',                  ex:'Masz właściwe podejście. — У тебя правильный подход.'},
+  {pl:'wdrożyć',        ru:'внедрить / запустить',    ex:'Wdrożyliśmy nowy system. — Мы внедрили новую систему.'},
+  {pl:'sprawdzić się',  ru:'оправдать себя / сработать',ex:'Ten plan się sprawdził. — Этот план сработал.'},
+  {pl:'zależy od',      ru:'зависит от',              ex:'To zależy od sytuacji. — Это зависит от ситуации.'},
+  {pl:'z kolei',        ru:'в свою очередь',          ex:'On z kolei nie wiedział. — Он, в свою очередь, не знал.'},
+  {pl:'narażony na',    ru:'подвержен / exposed to',  ex:'Jest narażony na stres. — Он подвержен стрессу.'},
+  {pl:'tymczasem',      ru:'тем временем',            ex:'Tymczasem sytuacja się zmieniła. — Тем временем ситуация изменилась.'},
+  {pl:'obowiązywać',    ru:'действовать / быть в силе',ex:'Przepisy nadal obowiązują. — Правила всё ещё действуют.'},
+  {pl:'skuteczny',      ru:'эффективный / действенный',ex:'To skuteczna metoda. — Это эффективный метод.'},
+  {pl:'przede wszystkim',ru:'прежде всего',           ex:'Przede wszystkim bądź szczery. — Прежде всего будь честным.'},
+  {pl:'stopniowo',      ru:'постепенно',              ex:'Stopniowo poprawia się. — Постепенно улучшается.'},
+  {pl:'świadomość',     ru:'осознанность / сознание', ex:'Mam świadomość problemu. — Я осознаю проблему.'},
+  {pl:'współpraca',     ru:'сотрудничество',          ex:'Dobra współpraca jest kluczem. — Хорошее сотрудничество — это ключ.'},
+  {pl:'zaświadczenie',  ru:'справка / свидетельство', ex:'Potrzebuję zaświadczenia z pracy. — Мне нужна справка с работы.'},
+  {pl:'wniosek',        ru:'заявление / вывод',       ex:'Złożyłem wniosek o urlop. — Я подал заявление на отпуск.'},
+  {pl:'niezbędny',      ru:'необходимый / обязательный',ex:'To niezbędny krok. — Это необходимый шаг.'},
+  {pl:'rozróżniać',     ru:'различать / разграничивать',ex:'Trzeba rozróżniać te dwa pojęcia. — Нужно различать эти два понятия.'},
+  {pl:'uprzejmie',      ru:'любезно / вежливо',       ex:'Uprzejmie proszę o odpowiedź. — Любезно прошу ответить.'},
+  {pl:'w związku z',    ru:'в связи с',               ex:'W związku z tym piszę do was. — В связи с этим пишу вам.'},
+  {pl:'zgodnie z',      ru:'согласно / в соответствии с',ex:'Zgodnie z umową. — Согласно договору.'},
+  {pl:'na podstawie',   ru:'на основании',            ex:'Na podstawie dokumentów. — На основании документов.'},
+  {pl:'udostępnić',     ru:'предоставить / открыть доступ',ex:'Udostępnił mi swoje notatki. — Он предоставил мне свои записи.'},
+  {pl:'skłonny',        ru:'склонный / готовый',      ex:'Jestem skłonny to zrobić. — Я готов это сделать.'},
+  {pl:'wątpliwość',     ru:'сомнение',                ex:'Mam co do tego wątpliwości. — У меня есть сомнения по этому поводу.'},
+  {pl:'niezależnie od', ru:'независимо от',           ex:'Niezależnie od wyniku, dziękuję. — Независимо от результата, спасибо.'},
+];
+function loadWords() {
+  const n = new Date();
+  const seed = n.getFullYear()*10000 + (n.getMonth()+1)*100 + n.getDate();
+  const L = WORDS.length;
+  const i0 = seed % L;
+  const i1 = (seed*7+13) % L;
+  const i2 = (seed*13+29) % L;
+  const w = [WORDS[i0], WORDS[i1!==i0?i1:(i1+1)%L], WORDS[i2!==i0&&i2!==i1?i2:(i2+3)%L]];
+  $('words').innerHTML = w.map(x => `
+    <div class="word-row">
+      <div class="word-top">
+        <span class="word-pl">${x.pl}</span>
+        <span class="word-sep">—</span>
+        <span class="word-ru">${x.ru}</span>
+      </div>
+      <div class="word-ex">${x.ex}</div>
+    </div>`).join('');
+}
+
+// ── auto-refresh ──────────────────────────────
+setInterval(loadCurrency, INTERVAL_CUR);
+setInterval(loadWeather,  INTERVAL_WX);
+setInterval(refreshTimestamps, 60000);
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  if (!lastCur || Date.now()-lastCur > INTERVAL_CUR) loadCurrency();
+  if (!lastWx  || Date.now()-lastWx  > INTERVAL_WX)  loadWeather();
+  refreshTimestamps();
+});
+
+
+// ── tasks ─────────────────────────────────────
+let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+
+function saveTasks() { localStorage.setItem('tasks', JSON.stringify(tasks)); }
+
+function renderTasks() {
+  const list = document.getElementById('taskList');
+  const empty = document.getElementById('taskEmpty');
+  const count = document.getElementById('taskCount');
+  if (tasks.length === 0) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    count.textContent = '0 задач';
+    return;
+  }
+  empty.style.display = 'none';
+  const done = tasks.filter(t => t.done).length;
+  count.textContent = `${done} из ${tasks.length} выполнено`;
+  list.innerHTML = tasks.map(t => `
+    <div class="task-item ${t.done?'done':''} ${t.urgent&&!t.done?'urgent':''}" data-id="${t.id}">
+      <div class="drag-handle" data-drag="${t.id}">☰</div>
+      <div class="urgent-dot"></div>
+      <div class="task-cb ${t.done?'checked':''}" onclick="toggleTask(${t.id})"></div>
+      <div class="task-text">${t.text}</div>
+      <button class="task-urgent-btn" onclick="toggleUrgent(${t.id})">⚑</button>
+      <button class="task-del" onclick="removeTask(${t.id})">×</button>
+    </div>`).join('');
+  initTaskDrag();
+}
+
+function addTasks() {
+  const input = document.getElementById('taskInput');
+  const raw = input.value.trim();
+  if (!raw) return;
+  raw.split(/[,\n]+/).map(s => s.trim()).filter(Boolean)
+    .forEach(text => tasks.push({ id: Date.now() + Math.random(), text, done: false, urgent: false }));
+  input.value = '';
+  saveTasks(); renderTasks();
+}
+
+function toggleTask(id) {
+  const t = tasks.find(x => x.id === id);
+  if (t) { t.done = !t.done; if (t.done) t.urgent = false; }
+  saveTasks(); renderTasks();
+}
+
+function toggleUrgent(id) {
+  const t = tasks.find(x => x.id === id);
+  if (t && !t.done) t.urgent = !t.urgent;
+  if (navigator.vibrate) navigator.vibrate(30);
+  saveTasks(); renderTasks();
+}
+
+function removeTask(id) {
+  tasks = tasks.filter(x => x.id !== id);
+  saveTasks(); renderTasks();
+}
+
+function clearDone() {
+  tasks = tasks.filter(x => !x.done);
+  saveTasks(); renderTasks();
+}
+
+// touch drag
+let dragId = null, dragGhost = null;
+
+function initTaskDrag() {
+  document.querySelectorAll('[data-drag]').forEach(h => {
+    h.addEventListener('touchstart', dragStart, { passive: false });
+  });
+}
+
+function dragStart(e) {
+  e.preventDefault();
+  dragId = parseFloat(this.dataset.drag);
+  const t = tasks.find(x => x.id === dragId);
+  if (!t) return;
+  const touch = e.touches[0];
+  dragGhost = document.createElement('div');
+  dragGhost.className = 'drag-ghost';
+  dragGhost.textContent = t.text;
+  dragGhost.style.left = '20px';
+  dragGhost.style.width = (document.getElementById('taskList').offsetWidth) + 'px';
+  dragGhost.style.top = (touch.clientY - 20) + 'px';
+  document.body.appendChild(dragGhost);
+  document.querySelector(`[data-id="${dragId}"]`).classList.add('is-dragging');
+  document.addEventListener('touchmove', dragMove, { passive: false });
+  document.addEventListener('touchend', dragEnd);
+}
+
+function dragMove(e) {
+  e.preventDefault();
+  if (!dragGhost) return;
+  const touch = e.touches[0];
+  dragGhost.style.top = (touch.clientY - 20) + 'px';
+  document.querySelectorAll('.task-item:not(.is-dragging)').forEach(el => el.style.borderColor = '');
+  const target = [...document.querySelectorAll('.task-item:not(.is-dragging)')].find(el => {
+    const r = el.getBoundingClientRect();
+    return touch.clientY >= r.top && touch.clientY <= r.bottom;
+  });
+  if (target) target.style.borderColor = 'var(--gold)';
+}
+
+function dragEnd(e) {
+  if (!dragGhost) return;
+  const touch = e.changedTouches[0];
+  const target = [...document.querySelectorAll('.task-item:not(.is-dragging)')].find(el => {
+    const r = el.getBoundingClientRect();
+    return touch.clientY >= r.top && touch.clientY <= r.bottom;
+  });
+  if (target) {
+    const targetId = parseFloat(target.dataset.id);
+    const si = tasks.findIndex(x => x.id === dragId);
+    const ti = tasks.findIndex(x => x.id === targetId);
+    if (si !== -1 && ti !== -1) { const [item] = tasks.splice(si, 1); tasks.splice(ti, 0, item); }
+  }
+  dragGhost.remove(); dragGhost = null; dragId = null;
+  document.removeEventListener('touchmove', dragMove);
+  document.removeEventListener('touchend', dragEnd);
+  saveTasks(); renderTasks();
+}
+
+renderTasks();
+
+// ── init ──────────────────────────────────────
+async function loadAll() {
+  $('refreshBtn').classList.add('spin');
+  setHeader();
+  loadSlavic();
+  loadWords();
+  await Promise.allSettled([loadCurrency(), loadWeather()]);
+  refreshTimestamps();
+  $('refreshBtn').classList.remove('spin');
+}
+
+// unregister any old service workers
+if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+
+loadAll();
 </script>
 </body>
 </html>
